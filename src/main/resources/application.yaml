@@ -1,0 +1,54 @@
+quarkus:
+  application:
+    name: easydoorapi
+    version: 1.0.0-SNAPSHOT
+  swagger-ui:
+    always-include: true
+
+  #  datasource:
+#    username: postgres
+#    password: postgres
+#    jdbc:
+#      url: jdbc:postgresql://localhost:5432/easydoor
+
+  hibernate-orm:
+    database:
+      generation: update
+    log:
+      sql: false
+
+  smallrye-jwt:
+    sign:
+      key: "mySecretKeyForJWTSigningMustBeLong32CharactersOrMoreForSecurity!"
+    verify:
+      issuer: easydoor-api
+      audience: easydoor-users
+    token:
+      header: Authorization
+      scheme: Bearer
+      cookie: null
+    claims:
+      sub: preferred_username
+      aud: groups
+
+  http:
+    port: 8080
+    cors: true
+
+  log:
+    level: INFO
+    category:
+      "br.com.gabezy.easydoorapi": DEBUG
+
+jwt:
+  access-token:
+    ttl-seconds: 900
+  refresh-token:
+    ttl-seconds: 604800
+
+server:
+  shutdown:
+    delay-seconds: 5
+
+
+
