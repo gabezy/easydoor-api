@@ -1,7 +1,6 @@
-package br.com.gabezy.easydoorapi.domain.user.entities;
+package br.com.gabezy.easydoorapi.domain.role.entities;
 
-import br.com.gabezy.easydoorapi.domain.shared.BaseEntity;
-import io.quarkus.hibernate.orm.panache.PanacheEntity;
+import br.com.gabezy.easydoorapi.domain.shared.entities.BaseEntity;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 

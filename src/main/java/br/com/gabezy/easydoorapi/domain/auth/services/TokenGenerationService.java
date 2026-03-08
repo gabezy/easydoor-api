@@ -1,7 +1,7 @@
 package br.com.gabezy.easydoorapi.domain.auth.services;
 
-import br.com.gabezy.easydoorapi.domain.shared.Token;
-import br.com.gabezy.easydoorapi.domain.user.entities.Permission;
+import br.com.gabezy.easydoorapi.domain.shared.vo.Token;
+import br.com.gabezy.easydoorapi.domain.role.entities.Permission;
 import br.com.gabezy.easydoorapi.domain.user.entities.User;
 import br.com.gabezy.easydoorapi.infra.config.JwtProperties;
 import io.smallrye.jwt.build.Jwt;

@@ -1,4 +1,4 @@
-package br.com.gabezy.easydoorapi.domain.shared;
+package br.com.gabezy.easydoorapi.domain.shared.vo;
 
 import java.util.Objects;
 import java.util.regex.Pattern;

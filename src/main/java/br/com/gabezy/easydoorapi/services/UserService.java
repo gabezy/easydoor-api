@@ -1,9 +1,9 @@
 package br.com.gabezy.easydoorapi.services;
 
-import br.com.gabezy.easydoorapi.domain.user.entities.Role;
+import br.com.gabezy.easydoorapi.domain.role.entities.Role;
 import br.com.gabezy.easydoorapi.domain.user.entities.User;
-import br.com.gabezy.easydoorapi.infra.repositories.RoleRepository;
-import br.com.gabezy.easydoorapi.infra.repositories.UserRepository;
+import br.com.gabezy.easydoorapi.infra.repositories.RoleRepositoryImpl;
+import br.com.gabezy.easydoorapi.infra.repositories.UserRepositoryImpl;
 import br.com.gabezy.easydoorapi.resources.dto.UserDTO;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.transaction.Transactional;
@@ -13,97 +13,92 @@ import java.util.stream.Collectors;
 @ApplicationScoped
 public class UserService {
 
-    private final UserRepository userRepository;
-    private final RoleRepository roleRepository;
+    private final UserRepositoryImpl userRepositoryImpl;
+    private final RoleRepositoryImpl roleRepositoryImpl;
 
-    public UserService(UserRepository userRepository, RoleRepository roleRepository) {
-        this.userRepository = userRepository;
-        this.roleRepository = roleRepository;
+    public UserService(UserRepositoryImpl userRepositoryImpl, RoleRepositoryImpl roleRepositoryImpl) {
+        this.userRepositoryImpl = userRepositoryImpl;
+        this.roleRepositoryImpl = roleRepositoryImpl;
     }
 
     public List<UserDTO> getAllUsers() {
-        return userRepository.listAll().stream()
+        return userRepositoryImpl.listAll().stream()
                 .map(this::mapUserToDTO)
                 .collect(Collectors.toList());
     }
 
     public UserDTO getUserById(Long userId) {
-        User user = userRepository.findByIdWithRoles(userId);
-        return user != null ? mapUserToDTO(user) : null;
+        return userRepositoryImpl.findByIdWithRoles(userId)
+                .map(this::mapUserToDTO)
+                .orElse(null);
     }
 
     public UserDTO getUserByUsername(String username) {
-        User user = userRepository.findByUsernameWithRoles(username);
-        return user != null ? mapUserToDTO(user) : null;
+        return userRepositoryImpl.findByUsernameWithRoles(username)
+                .map(this::mapUserToDTO)
+                .orElse(null);
     }
 
     public boolean usernameExists(String username) {
-        return userRepository.findByUsername(username) != null;
+        return userRepositoryImpl.findByUsername(username) != null;
     }
 
     public boolean emailExists(String email) {
-        return userRepository.findByEmail(email) != null;
+        return userRepositoryImpl.findByEmail(email) != null;
     }
 
     @Transactional
     public UserDTO updateUser(Long userId, String email, boolean active) {
-        User user = userRepository.findById(userId);
+        User user = userRepositoryImpl.findById(userId);
         if (user == null) {
             return null;
         }
 
-        // Email can be updated if not taken by another user
         if (email != null && !email.equals(user.getEmail())) {
-            User existingUser = userRepository.findByEmail(email);
-            if (existingUser != null) {
-                throw new IllegalArgumentException("Email already in use");
-            }
+            userRepositoryImpl.findByEmail(email)
+                    .orElseThrow();
             user.setEmail(email);
         }
 
         user.setActive(active);
-        userRepository.persist(user);
+        userRepositoryImpl.persist(user);
         return mapUserToDTO(user);
     }
 
     @Transactional
     public void assignRoleToUser(Long userId, String roleName) {
-        User user = userRepository.findById(userId);
+        User user = userRepositoryImpl.findById(userId);
         if (user == null) {
             throw new IllegalArgumentException("User not found");
         }
 
-        Role role = roleRepository.findByNameWithPermissions(roleName);
-        if (role == null) {
-            throw new IllegalArgumentException("Role not found");
-        }
+        Role role = roleRepositoryImpl.findByNameWithPermissions(roleName)
+                .orElseThrow();
 
         user.addRole(role);
-        userRepository.persist(user);
+        userRepositoryImpl.persist(user);
     }
 
     @Transactional
     public void removeRoleFromUser(Long userId, String roleName) {
-        User user = userRepository.findById(userId);
+        User user = userRepositoryImpl.findById(userId);
         if (user == null) {
             throw new IllegalArgumentException("User not found");
         }
 
-        Role role = roleRepository.findByName(roleName);
-        if (role == null) {
-            throw new IllegalArgumentException("Role not found");
-        }
+        Role role = roleRepositoryImpl.findByName(roleName)
+                .orElseThrow();
 
         user.removeRole(role);
-        userRepository.persist(user);
+        userRepositoryImpl.persist(user);
     }
 
     @Transactional
     public void deleteUser(Long userId) {
-        User user = userRepository.findById(userId);
+        User user = userRepositoryImpl.findById(userId);
         if (user != null) {
             user.setActive(false);
-            userRepository.persist(user);
+            userRepositoryImpl.persist(user);
         }
     }
 

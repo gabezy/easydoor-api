@@ -1,4 +1,4 @@
-package br.com.gabezy.easydoorapi.domain.shared;
+package br.com.gabezy.easydoorapi.domain.shared.entities;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.PreUpdate;

@@ -1,6 +1,7 @@
 package br.com.gabezy.easydoorapi.domain.user.entities;
 
-import br.com.gabezy.easydoorapi.domain.shared.BaseUpdatableEntity;
+import br.com.gabezy.easydoorapi.domain.role.entities.Role;
+import br.com.gabezy.easydoorapi.domain.shared.entities.BaseUpdatableEntity;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.HashSet;

@@ -1,4 +1,4 @@
-package br.com.gabezy.easydoorapi.domain.shared;
+package br.com.gabezy.easydoorapi.domain.shared.vo;
 
 import java.util.Objects;
 
@@ -26,9 +26,5 @@ public record Token (String value) {
         return Objects.hash(value);
     }
 
-    @Override
-    public String toString() {
-        return "Token{***}";
-    }
 }
 

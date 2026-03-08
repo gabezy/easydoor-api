@@ -2,12 +2,12 @@ package br.com.gabezy.easydoorapi.services;
 
 import br.com.gabezy.easydoorapi.domain.auth.services.RefreshTokenService;
 import br.com.gabezy.easydoorapi.domain.auth.services.TokenGenerationService;
-import br.com.gabezy.easydoorapi.domain.shared.Email;
-import br.com.gabezy.easydoorapi.domain.user.entities.Role;
+import br.com.gabezy.easydoorapi.domain.shared.vo.Email;
+import br.com.gabezy.easydoorapi.domain.role.entities.Role;
 import br.com.gabezy.easydoorapi.domain.user.entities.User;
 import br.com.gabezy.easydoorapi.infra.config.JwtProperties;
-import br.com.gabezy.easydoorapi.infra.repositories.RoleRepository;
-import br.com.gabezy.easydoorapi.infra.repositories.UserRepository;
+import br.com.gabezy.easydoorapi.infra.repositories.RoleRepositoryImpl;
+import br.com.gabezy.easydoorapi.infra.repositories.UserRepositoryImpl;
 import br.com.gabezy.easydoorapi.resources.dto.LoginRequestDTO;
 import br.com.gabezy.easydoorapi.resources.dto.RegisterRequestDTO;
 import br.com.gabezy.easydoorapi.resources.dto.TokenResponseDTO;
@@ -21,17 +21,17 @@ import java.util.Objects;
 @ApplicationScoped
 public class AuthService {
 
-    private final UserRepository userRepository;
-    private final RoleRepository roleRepository;
+    private final UserRepositoryImpl userRepositoryImpl;
+    private final RoleRepositoryImpl roleRepositoryImpl;
     private final TokenGenerationService tokenGenerationService;
     private final RefreshTokenService refreshTokenService;
     private final JwtProperties jwtProperties;
 
-    public AuthService(UserRepository userRepository, RoleRepository roleRepository,
+    public AuthService(UserRepositoryImpl userRepositoryImpl, RoleRepositoryImpl roleRepositoryImpl,
                        TokenGenerationService tokenGenerationService, RefreshTokenService refreshTokenService,
                        JwtProperties jwtProperties) {
-        this.userRepository = userRepository;
-        this.roleRepository = roleRepository;
+        this.userRepositoryImpl = userRepositoryImpl;
+        this.roleRepositoryImpl = roleRepositoryImpl;
         this.tokenGenerationService = tokenGenerationService;
         this.refreshTokenService = refreshTokenService;
         this.jwtProperties = jwtProperties;
@@ -40,19 +40,17 @@ public class AuthService {
     @Transactional
     public TokenResponseDTO register(RegisterRequestDTO request) {
         Email emailVO = new Email(request.email());
-        if (Objects.nonNull(userRepository.findByEmail(emailVO.value()))) {
+        if (Objects.nonNull(userRepositoryImpl.findByEmail(emailVO.value()))) {
             throw new IllegalArgumentException("Email already exists");
         }
 
         String hashedPassword = BcryptUtil.bcryptHash(request.password());
         User user = new User(request.username(), emailVO.value(), hashedPassword);
 
-        Role userRole = roleRepository.findByName("USER");
-        if (userRole != null) {
-            user.addRole(userRole);
-        }
+        roleRepositoryImpl.findByName("USER")
+                .ifPresent(user::addRole);
 
-        userRepository.persist(user);
+        userRepositoryImpl.persist(user);
 
         return new TokenResponseDTO(
                 tokenGenerationService.generateAccessToken(user).value(),
@@ -63,10 +61,8 @@ public class AuthService {
 
     @Transactional
     public TokenResponseDTO login(LoginRequestDTO request) {
-        User user = userRepository.findByUsernameWithRoles(request.username());
-        if (Objects.isNull(user)) {
-            throw new IllegalArgumentException("Invalid credentials");
-        }
+        User user = userRepositoryImpl.findByUsernameWithRoles(request.username())
+                .orElseThrow();
 
         if (!user.isActive()) {
             throw new IllegalArgumentException("User account is inactive");
@@ -77,7 +73,7 @@ public class AuthService {
         }
 
         user.recordLogin();
-        userRepository.persist(user);
+        userRepositoryImpl.persist(user);
 
         String accessToken = tokenGenerationService.generateAccessToken(user).value();
         String refreshToken = tokenGenerationService.generateRefreshToken(user).value();
@@ -100,11 +96,9 @@ public class AuthService {
         }
 
         var refreshToken = refreshTokenService.getValidToken(refreshTokenValue);
-        User user = userRepository.findByIdWithRoles(refreshToken.getUserId());
-
-        if (user == null || !user.isActive()) {
-            throw new IllegalArgumentException("User not found or inactive");
-        }
+        var user = userRepositoryImpl.findByIdWithRoles(refreshToken.getUserId())
+                .filter(User::isActive)
+                .orElseThrow();
 
         String newAccessToken = tokenGenerationService.generateAccessToken(user).value();
 

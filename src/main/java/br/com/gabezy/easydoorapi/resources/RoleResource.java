@@ -2,7 +2,7 @@ package br.com.gabezy.easydoorapi.resources;
 
 import br.com.gabezy.easydoorapi.resources.dto.PermissionDTO;
 import br.com.gabezy.easydoorapi.resources.dto.RoleDTO;
-import br.com.gabezy.easydoorapi.services.PermissionService;
+import br.com.gabezy.easydoorapi.services.RoleService;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
@@ -17,10 +17,10 @@ import java.util.List;
 @Consumes(MediaType.APPLICATION_JSON)
 public class RoleResource {
 
-    private final PermissionService permissionService;
+    private final RoleService roleService;
 
-    public RoleResource(PermissionService permissionService) {
-        this.permissionService = permissionService;
+    public RoleResource(RoleService roleService) {
+        this.roleService = roleService;
     }
 
     @GET
@@ -28,7 +28,7 @@ public class RoleResource {
     @RolesAllowed("ADMIN")
     public Response getAllPermissions() {
         try {
-            List<PermissionDTO> permissions = permissionService.getAllPermissions();
+            List<PermissionDTO> permissions = roleService.getAllPermissions();
             return Response.ok(permissions).build();
         } catch (Exception e) {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
@@ -42,7 +42,7 @@ public class RoleResource {
     @RolesAllowed("ADMIN")
     public Response getPermissionById(@PathParam("id") Long permissionId) {
         try {
-            PermissionDTO permission = permissionService.getPermissionById(permissionId);
+            PermissionDTO permission = roleService.getPermissionById(permissionId);
             if (permission == null) {
                 return Response.status(Response.Status.NOT_FOUND)
                         .entity("{\"error\":\"Permission not found\"}")
@@ -59,7 +59,7 @@ public class RoleResource {
     @GET
     public Response getAllRoles() {
         try {
-            List<RoleDTO> roles = permissionService.getAllRoles();
+            List<RoleDTO> roles = roleService.getAllRoles();
             return Response.ok(roles).build();
         } catch (Exception e) {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
@@ -73,7 +73,7 @@ public class RoleResource {
     @RolesAllowed("ADMIN")
     public Response getRoleById(@PathParam("id") Long roleId) {
         try {
-            RoleDTO role = permissionService.getRoleById(roleId);
+            RoleDTO role = roleService.getRoleById(roleId);
             if (role == null) {
                 return Response.status(Response.Status.NOT_FOUND)
                         .entity("{\"error\":\"Role not found\"}")
@@ -104,7 +104,7 @@ public class RoleResource {
                         .entity("{\"error\":\"Role name is required\"}")
                         .build();
             }
-            RoleDTO role = permissionService.createRole(name, description);
+            RoleDTO role = roleService.createRole(name, description);
             return Response.status(Response.Status.CREATED).entity(role).build();
         } catch (IllegalArgumentException e) {
             return Response.status(Response.Status.CONFLICT)
@@ -130,7 +130,7 @@ public class RoleResource {
     public Response addPermissionToRole(@PathParam("id") Long roleId,
                                         @PathParam("permissionCode") String permissionCode) {
         try {
-            permissionService.addPermissionToRole(roleId, permissionCode);
+            roleService.addPermissionToRole(roleId, permissionCode);
             return Response.ok("{\"message\":\"Permission added to role successfully\"}").build();
         } catch (IllegalArgumentException e) {
             return Response.status(Response.Status.BAD_REQUEST)
@@ -156,7 +156,7 @@ public class RoleResource {
     public Response removePermissionFromRole(@PathParam("id") Long roleId,
                                              @PathParam("permissionCode") String permissionCode) {
         try {
-            permissionService.removePermissionFromRole(roleId, permissionCode);
+            roleService.removePermissionFromRole(roleId, permissionCode);
             return Response.ok("{\"message\":\"Permission removed from role successfully\"}").build();
         } catch (IllegalArgumentException e) {
             return Response.status(Response.Status.BAD_REQUEST)
