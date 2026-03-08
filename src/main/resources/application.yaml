@@ -2,6 +2,8 @@ quarkus:
   application:
     name: easydoorapi
     version: 1.0.0-SNAPSHOT
+  swagger-ui:
+    always-include: true
 
   datasource:
     username: postgres
@@ -11,9 +13,13 @@ quarkus:
 
   hibernate-orm:
     database:
-      generation: update
+      generation: validate
     log:
       sql: false
+
+  flyway:
+    username: postgres
+    password: postgres
 
   smallrye-jwt:
     sign:
@@ -43,10 +49,6 @@ jwt:
     ttl-seconds: 900
   refresh-token:
     ttl-seconds: 604800
-
 server:
   shutdown:
     delay-seconds: 5
-
-
-
