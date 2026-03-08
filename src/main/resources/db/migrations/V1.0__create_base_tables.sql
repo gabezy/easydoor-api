@@ -14,7 +14,6 @@ CREATE TABLE permissions
     code        VARCHAR(100) NOT NULL,
     description VARCHAR(255) NOT NULL,
     createdAt   TIMESTAMP WITHOUT TIME ZONE NOT NULL,
-    updatedAt   TIMESTAMP WITHOUT TIME ZONE NOT NULL,
     CONSTRAINT pk_permissions PRIMARY KEY (id)
 );
 
@@ -42,7 +41,7 @@ CREATE TABLE roles
     name        VARCHAR(100) NOT NULL,
     description VARCHAR(255) NOT NULL,
     createdAt   TIMESTAMP WITHOUT TIME ZONE NOT NULL,
-    updatedAt   TIMESTAMP WITHOUT TIME ZONE NOT NULL,
+    updatedAt   TIMESTAMP WITHOUT TIME ZONE,
     CONSTRAINT pk_roles PRIMARY KEY (id)
 );
 
@@ -61,7 +60,7 @@ CREATE TABLE users
     passwordHash VARCHAR(255) NOT NULL,
     active       BOOLEAN      NOT NULL,
     createdAt    TIMESTAMP WITHOUT TIME ZONE NOT NULL,
-    updatedAt    TIMESTAMP WITHOUT TIME ZONE NOT NULL,
+    updatedAt    TIMESTAMP WITHOUT TIME ZONE,
     lastLogin    TIMESTAMP WITHOUT TIME ZONE,
     CONSTRAINT pk_users PRIMARY KEY (id)
 );
