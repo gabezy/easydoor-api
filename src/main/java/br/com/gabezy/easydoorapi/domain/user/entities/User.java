@@ -80,14 +80,6 @@ public class User extends PanacheEntity {
                 .anyMatch(role -> role.hasPermission(permissionCode));
     }
 
-    @Override
-    public String toString() {
-        return "User{" +
-                "username='" + username + '\'' +
-                ", email='" + email + '\'' +
-                ", active=" + active +
-                '}';
-    }
 }
 
 

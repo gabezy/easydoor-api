@@ -4,7 +4,7 @@ import br.com.gabezy.easydoorapi.resources.dto.LoginRequestDTO;
 import br.com.gabezy.easydoorapi.resources.dto.RefreshTokenRequestDTO;
 import br.com.gabezy.easydoorapi.resources.dto.RegisterRequestDTO;
 import br.com.gabezy.easydoorapi.resources.dto.TokenResponseDTO;
-import br.com.gabezy.easydoorapi.services.AuthenticationApplicationService;
+import br.com.gabezy.easydoorapi.services.AuthService;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
@@ -15,9 +15,9 @@ import jakarta.ws.rs.core.Response;
 @Consumes(MediaType.APPLICATION_JSON)
 public class AuthResource {
 
-    private final AuthenticationApplicationService authenticationService;
+    private final AuthService authenticationService;
 
-    public AuthResource(AuthenticationApplicationService authenticationService) {
+    public AuthResource(AuthService authenticationService) {
         this.authenticationService = authenticationService;
     }
 

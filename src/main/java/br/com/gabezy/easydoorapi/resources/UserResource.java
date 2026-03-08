@@ -1,7 +1,7 @@
 package br.com.gabezy.easydoorapi.resources;
 
 import br.com.gabezy.easydoorapi.resources.dto.UserDTO;
-import br.com.gabezy.easydoorapi.services.UserApplicationService;
+import br.com.gabezy.easydoorapi.services.UserService;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
@@ -13,17 +13,17 @@ import java.util.List;
 @Consumes(MediaType.APPLICATION_JSON)
 public class UserResource {
 
-    private final UserApplicationService userApplicationService;
+    private final UserService userService;
 
-    public UserResource(UserApplicationService userApplicationService) {
-        this.userApplicationService = userApplicationService;
+    public UserResource(UserService userService) {
+        this.userService = userService;
     }
 
     @GET
     @RolesAllowed("ADMIN")
     public Response getAllUsers() {
         try {
-            List<UserDTO> users = userApplicationService.getAllUsers();
+            List<UserDTO> users = userService.getAllUsers();
             return Response.ok(users).build();
         } catch (Exception e) {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
@@ -37,7 +37,7 @@ public class UserResource {
     @RolesAllowed("ADMIN")
     public Response getUserById(@PathParam("id") Long userId) {
         try {
-            UserDTO user = userApplicationService.getUserById(userId);
+            UserDTO user = userService.getUserById(userId);
             if (user == null) {
                 return Response.status(Response.Status.NOT_FOUND)
                         .entity("{\"error\":\"User not found\"}")
@@ -56,7 +56,7 @@ public class UserResource {
     @RolesAllowed("ADMIN")
     public Response getUserByUsername(@PathParam("username") String username) {
         try {
-            UserDTO user = userApplicationService.getUserByUsername(username);
+            UserDTO user = userService.getUserByUsername(username);
             if (user == null) {
                 return Response.status(Response.Status.NOT_FOUND)
                         .entity("{\"error\":\"User not found\"}")
@@ -78,7 +78,7 @@ public class UserResource {
                                @QueryParam("active") Boolean active) {
         try {
             boolean activeStatus = active != null ? active : true;
-            UserDTO user = userApplicationService.updateUser(userId, email, activeStatus);
+            UserDTO user = userService.updateUser(userId, email, activeStatus);
             if (user == null) {
                 return Response.status(Response.Status.NOT_FOUND)
                         .entity("{\"error\":\"User not found\"}")
@@ -101,7 +101,7 @@ public class UserResource {
     @RolesAllowed("ADMIN")
     public Response deleteUser(@PathParam("id") Long userId) {
         try {
-            userApplicationService.deleteUser(userId);
+            userService.deleteUser(userId);
             return Response.noContent().build();
         } catch (Exception e) {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
@@ -115,7 +115,7 @@ public class UserResource {
     @RolesAllowed("ADMIN")
     public Response assignRoleToUser(@PathParam("id") Long userId, @PathParam("roleName") String roleName) {
         try {
-            userApplicationService.assignRoleToUser(userId, roleName);
+            userService.assignRoleToUser(userId, roleName);
             return Response.ok("{\"message\":\"Role assigned successfully\"}").build();
         } catch (IllegalArgumentException e) {
             return Response.status(Response.Status.BAD_REQUEST)
@@ -133,7 +133,7 @@ public class UserResource {
     @RolesAllowed("ADMIN")
     public Response removeRoleFromUser(@PathParam("id") Long userId, @PathParam("roleName") String roleName) {
         try {
-            userApplicationService.removeRoleFromUser(userId, roleName);
+            userService.removeRoleFromUser(userId, roleName);
             return Response.ok("{\"message\":\"Role removed successfully\"}").build();
         } catch (IllegalArgumentException e) {
             return Response.status(Response.Status.BAD_REQUEST)

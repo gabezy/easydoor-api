@@ -6,9 +6,6 @@ import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
-/**
- * Role Entity - represents a system role with associated permissions
- */
 @Entity
 @Table(name = "roles")
 public class Role extends PanacheEntity {
@@ -65,12 +62,5 @@ public class Role extends PanacheEntity {
                 .anyMatch(p -> p.code.equals(permissionCode));
     }
 
-    @Override
-    public String toString() {
-        return "Role{" +
-                "name='" + name + '\'' +
-                ", description='" + description + '\'' +
-                '}';
-    }
 }
 

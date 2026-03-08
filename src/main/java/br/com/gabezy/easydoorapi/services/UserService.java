@@ -11,12 +11,12 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @ApplicationScoped
-public class UserApplicationService {
+public class UserService {
 
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
 
-    public UserApplicationService(UserRepository userRepository, RoleRepository roleRepository) {
+    public UserService(UserRepository userRepository, RoleRepository roleRepository) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
     }

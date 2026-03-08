@@ -1,4 +1,4 @@
-package br.com.gabezy.easydoorapi;
+package br.com.gabezy.easydoorapi.infra.config;
 
 import org.eclipse.microprofile.openapi.annotations.OpenAPIDefinition;
 import org.eclipse.microprofile.openapi.annotations.enums.SecuritySchemeType;

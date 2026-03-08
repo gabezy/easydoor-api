@@ -14,13 +14,12 @@ import br.com.gabezy.easydoorapi.resources.dto.TokenResponseDTO;
 import io.quarkus.elytron.security.common.BcryptUtil;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.transaction.Transactional;
-import lombok.RequiredArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.Objects;
 
 @ApplicationScoped
-public class AuthenticationApplicationService {
+public class AuthService {
 
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
@@ -28,7 +27,9 @@ public class AuthenticationApplicationService {
     private final RefreshTokenService refreshTokenService;
     private final JwtProperties jwtProperties;
 
-    public AuthenticationApplicationService(UserRepository userRepository, RoleRepository roleRepository, TokenGenerationService tokenGenerationService, RefreshTokenService refreshTokenService, JwtProperties jwtProperties) {
+    public AuthService(UserRepository userRepository, RoleRepository roleRepository,
+                       TokenGenerationService tokenGenerationService, RefreshTokenService refreshTokenService,
+                       JwtProperties jwtProperties) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.tokenGenerationService = tokenGenerationService;
@@ -39,12 +40,12 @@ public class AuthenticationApplicationService {
     @Transactional
     public TokenResponseDTO register(RegisterRequestDTO request) {
         Email emailVO = new Email(request.email());
-        if (userRepository.findByEmail(emailVO.value()) != null) {
+        if (Objects.nonNull(userRepository.findByEmail(emailVO.value()))) {
             throw new IllegalArgumentException("Email already exists");
         }
 
         String hashedPassword = BcryptUtil.bcryptHash(request.password());
-        User user = new User(request.password(), emailVO.value(), hashedPassword);
+        User user = new User(request.username(), emailVO.value(), hashedPassword);
 
         Role userRole = roleRepository.findByName("USER");
         if (userRole != null) {
@@ -63,7 +64,7 @@ public class AuthenticationApplicationService {
     @Transactional
     public TokenResponseDTO login(LoginRequestDTO request) {
         User user = userRepository.findByUsernameWithRoles(request.username());
-        if (user == null) {
+        if (Objects.isNull(user)) {
             throw new IllegalArgumentException("Invalid credentials");
         }
 

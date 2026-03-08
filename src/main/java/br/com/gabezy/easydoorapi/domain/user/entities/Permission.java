@@ -4,9 +4,6 @@ import io.quarkus.hibernate.orm.panache.PanacheEntity;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
-/**
- * Permission Entity - represents a system permission with a unique String code
- */
 @Entity
 @Table(name = "permissions")
 public class Permission extends PanacheEntity {
@@ -42,12 +39,5 @@ public class Permission extends PanacheEntity {
         this.description = description;
     }
 
-    @Override
-    public String toString() {
-        return "Permission{" +
-                "code='" + code + '\'' +
-                ", description='" + description + '\'' +
-                '}';
-    }
 }
 

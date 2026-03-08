@@ -2,14 +2,12 @@ quarkus:
   application:
     name: easydoorapi
     version: 1.0.0-SNAPSHOT
-  swagger-ui:
-    always-include: true
 
-  #  datasource:
-#    username: postgres
-#    password: postgres
-#    jdbc:
-#      url: jdbc:postgresql://localhost:5432/easydoor
+  datasource:
+    username: postgres
+    password: postgres
+    jdbc:
+      url: jdbc:postgresql://db.docker.orb.local/easydoor
 
   hibernate-orm:
     database:
