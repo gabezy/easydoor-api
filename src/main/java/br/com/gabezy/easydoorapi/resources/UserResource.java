@@ -1,17 +1,15 @@
 package br.com.gabezy.easydoorapi.resources;
 
+import br.com.gabezy.easydoorapi.resources.dto.UpdateUserRequest;
 import br.com.gabezy.easydoorapi.resources.dto.UserDTO;
 import br.com.gabezy.easydoorapi.services.UserService;
 import io.quarkus.security.Authenticated;
 import jakarta.annotation.security.PermitAll;
 import jakarta.annotation.security.RolesAllowed;
-import jakarta.inject.Inject;
+import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
-import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-import jakarta.ws.rs.core.SecurityContext;
-import org.eclipse.microprofile.jwt.JsonWebToken;
 
 import java.util.List;
 
@@ -21,9 +19,6 @@ import java.util.List;
 public class UserResource {
 
     private final UserService userService;
-
-    @Inject
-    private JsonWebToken jwt;
 
     public UserResource(UserService userService) {
         this.userService = userService;
@@ -45,7 +40,7 @@ public class UserResource {
     @GET
     @Path("/{id}")
     @PermitAll
-    public Response getUserById(@PathParam("id") Long userId, @Context SecurityContext securityContext) {
+    public Response getUserById(@PathParam("id") Long userId) {
         try {
             UserDTO user = userService.getUserById(userId);
             if (user == null) {
@@ -83,27 +78,8 @@ public class UserResource {
     @PUT
     @Path("/{id}")
     @RolesAllowed("ADMIN")
-    public Response updateUser(@PathParam("id") Long userId,
-                               @QueryParam("email") String email,
-                               @QueryParam("active") Boolean active) {
-        try {
-            boolean activeStatus = active != null ? active : true;
-            UserDTO user = userService.updateUser(userId, email, activeStatus);
-            if (user == null) {
-                return Response.status(Response.Status.NOT_FOUND)
-                        .entity("{\"error\":\"User not found\"}")
-                        .build();
-            }
-            return Response.ok(user).build();
-        } catch (IllegalArgumentException e) {
-            return Response.status(Response.Status.CONFLICT)
-                    .entity("{\"error\":\"" + e.getMessage() + "\"}")
-                    .build();
-        } catch (Exception e) {
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                    .entity("{\"error\":\"Failed to update user\"}")
-                    .build();
-        }
+    public Response updateUser(@PathParam("id") Long userId, @Valid UpdateUserRequest request) {
+        return Response.ok(userService.updateUser(userId, request)).build();
     }
 
     @DELETE

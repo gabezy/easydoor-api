@@ -4,10 +4,12 @@ import br.com.gabezy.easydoorapi.domain.role.entities.Role;
 import br.com.gabezy.easydoorapi.domain.user.entities.User;
 import br.com.gabezy.easydoorapi.infra.repositories.RoleRepositoryImpl;
 import br.com.gabezy.easydoorapi.infra.repositories.UserRepositoryImpl;
+import br.com.gabezy.easydoorapi.resources.dto.UpdateUserRequest;
 import br.com.gabezy.easydoorapi.resources.dto.UserDTO;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.transaction.Transactional;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @ApplicationScoped
@@ -39,30 +41,26 @@ public class UserService {
                 .orElse(null);
     }
 
-    public boolean usernameExists(String username) {
-        return userRepositoryImpl.findByUsername(username) != null;
+    @Transactional
+    public UserDTO updateUser(Long userId, UpdateUserRequest request) {
+        User user = findUser(userId);
+
+        if (emailExists(request.email())) {
+            throw new IllegalArgumentException("Email already exists");
+        }
+
+        user.setEmail(request.email());
+        user.setActive(request.active());
+        userRepositoryImpl.persist(user);
+        return mapUserToDTO(user);
     }
 
     public boolean emailExists(String email) {
-        return userRepositoryImpl.findByEmail(email) != null;
+        return userRepositoryImpl.findByEmail(email).isPresent();
     }
 
-    @Transactional
-    public UserDTO updateUser(Long userId, String email, boolean active) {
-        User user = userRepositoryImpl.findById(userId);
-        if (user == null) {
-            return null;
-        }
-
-        if (email != null && !email.equals(user.getEmail())) {
-            userRepositoryImpl.findByEmail(email)
-                    .orElseThrow();
-            user.setEmail(email);
-        }
-
-        user.setActive(active);
-        userRepositoryImpl.persist(user);
-        return mapUserToDTO(user);
+    public boolean usernameExists(String username) {
+        return userRepositoryImpl.findByUsername(username).isPresent();
     }
 
     @Transactional
@@ -100,6 +98,20 @@ public class UserService {
             user.setActive(false);
             userRepositoryImpl.persist(user);
         }
+    }
+
+    private User findUser(Long id) {
+        return userRepositoryImpl.findByIdOptional(id)
+                .orElseThrow();
+    }
+
+    public User findUserWithRoles(String username) {
+        return userRepositoryImpl.findByUsernameWithRoles(username)
+                .orElseThrow();
+    }
+
+    public Optional<User> findUserWithRoles(Long id) {
+        return userRepositoryImpl.findByIdWithRoles(id);
     }
 
     private UserDTO mapUserToDTO(User user) {

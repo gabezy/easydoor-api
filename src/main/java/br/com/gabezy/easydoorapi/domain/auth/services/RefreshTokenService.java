@@ -38,10 +38,10 @@ public class RefreshTokenService {
         refreshTokenRepositoryImpl.revokeAllByUserId(userId);
     }
 
-    public RefreshToken createToken(String tokenValue, Long userId, LocalDateTime expiresAt) {
+    public void createToken(String tokenValue, Long userId, LocalDateTime expiresAt) {
         RefreshToken token = new RefreshToken(tokenValue, userId, expiresAt);
         refreshTokenRepositoryImpl.persist(token);
-        return token;
     }
+
 }
 

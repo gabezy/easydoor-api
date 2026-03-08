@@ -3,34 +3,32 @@ package br.com.gabezy.easydoorapi.services;
 import br.com.gabezy.easydoorapi.domain.auth.services.RefreshTokenService;
 import br.com.gabezy.easydoorapi.domain.auth.services.TokenGenerationService;
 import br.com.gabezy.easydoorapi.domain.shared.vo.Email;
-import br.com.gabezy.easydoorapi.domain.role.entities.Role;
 import br.com.gabezy.easydoorapi.domain.user.entities.User;
 import br.com.gabezy.easydoorapi.infra.config.JwtProperties;
 import br.com.gabezy.easydoorapi.infra.repositories.RoleRepositoryImpl;
-import br.com.gabezy.easydoorapi.infra.repositories.UserRepositoryImpl;
 import br.com.gabezy.easydoorapi.resources.dto.LoginRequestDTO;
 import br.com.gabezy.easydoorapi.resources.dto.RegisterRequestDTO;
 import br.com.gabezy.easydoorapi.resources.dto.TokenResponseDTO;
 import io.quarkus.elytron.security.common.BcryptUtil;
+import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.transaction.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.Objects;
 
 @ApplicationScoped
 public class AuthService {
 
-    private final UserRepositoryImpl userRepositoryImpl;
+    private final UserService userService;
     private final RoleRepositoryImpl roleRepositoryImpl;
     private final TokenGenerationService tokenGenerationService;
     private final RefreshTokenService refreshTokenService;
     private final JwtProperties jwtProperties;
 
-    public AuthService(UserRepositoryImpl userRepositoryImpl, RoleRepositoryImpl roleRepositoryImpl,
+    public AuthService(UserService userService, RoleRepositoryImpl roleRepositoryImpl,
                        TokenGenerationService tokenGenerationService, RefreshTokenService refreshTokenService,
                        JwtProperties jwtProperties) {
-        this.userRepositoryImpl = userRepositoryImpl;
+        this.userService = userService;
         this.roleRepositoryImpl = roleRepositoryImpl;
         this.tokenGenerationService = tokenGenerationService;
         this.refreshTokenService = refreshTokenService;
@@ -40,17 +38,16 @@ public class AuthService {
     @Transactional
     public TokenResponseDTO register(RegisterRequestDTO request) {
         Email emailVO = new Email(request.email());
-        if (Objects.nonNull(userRepositoryImpl.findByEmail(emailVO.value()))) {
-            throw new IllegalArgumentException("Email already exists");
+        if (userService.usernameExists(request.username()) || userService.emailExists(emailVO.value())) {
+            throw new IllegalArgumentException("Username or email already exists");
         }
-
         String hashedPassword = BcryptUtil.bcryptHash(request.password());
         User user = new User(request.username(), emailVO.value(), hashedPassword);
 
         roleRepositoryImpl.findByName("USER")
                 .ifPresent(user::addRole);
 
-        userRepositoryImpl.persist(user);
+        user.persist();
 
         return new TokenResponseDTO(
                 tokenGenerationService.generateAccessToken(user).value(),
@@ -61,8 +58,7 @@ public class AuthService {
 
     @Transactional
     public TokenResponseDTO login(LoginRequestDTO request) {
-        User user = userRepositoryImpl.findByUsernameWithRoles(request.username())
-                .orElseThrow();
+        User user = userService.findUserWithRoles(request.username());
 
         if (!user.isActive()) {
             throw new IllegalArgumentException("User account is inactive");
@@ -73,7 +69,7 @@ public class AuthService {
         }
 
         user.recordLogin();
-        userRepositoryImpl.persist(user);
+        PanacheEntityBase.persist(user);
 
         String accessToken = tokenGenerationService.generateAccessToken(user).value();
         String refreshToken = tokenGenerationService.generateRefreshToken(user).value();
@@ -96,7 +92,7 @@ public class AuthService {
         }
 
         var refreshToken = refreshTokenService.getValidToken(refreshTokenValue);
-        var user = userRepositoryImpl.findByIdWithRoles(refreshToken.getUserId())
+        var user = userService.findUserWithRoles(refreshToken.getUserId())
                 .filter(User::isActive)
                 .orElseThrow();
 

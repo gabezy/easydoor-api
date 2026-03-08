@@ -20,6 +20,10 @@ quarkus:
   flyway:
     username: postgres
     password: postgres
+    jdbc-url: jdbc:postgresql://db.docker.orb.local/easydoor
+    active: true
+    enable: true
+    migrate-at-start: true
 
   http:
     port: 8080
