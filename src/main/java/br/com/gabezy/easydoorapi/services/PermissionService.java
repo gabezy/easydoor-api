@@ -104,15 +104,15 @@ public class PermissionService {
     }
 
     private PermissionDTO mapPermissionToDTO(Permission permission) {
-        return new PermissionDTO(permission.id, permission.code, permission.description);
+        return new PermissionDTO(permission.id, permission.getCode(), permission.getDescription());
     }
 
     private RoleDTO mapRoleToDTO(Role role) {
         return new RoleDTO(
                 role.id,
-                role.name,
-                role.description,
-                role.permissions.stream().map(p -> p.code).collect(Collectors.toSet())
+                role.getName(),
+                role.getDescription(),
+                role.getPermissions().stream().map(Permission::getCode).collect(Collectors.toSet())
         );
     }
 }

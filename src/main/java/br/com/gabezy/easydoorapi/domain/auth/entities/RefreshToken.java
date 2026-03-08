@@ -1,32 +1,25 @@
 package br.com.gabezy.easydoorapi.domain.auth.entities;
 
+import br.com.gabezy.easydoorapi.domain.shared.BaseEntity;
 import io.quarkus.hibernate.orm.panache.PanacheEntity;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "refresh_tokens")
-public class RefreshToken extends PanacheEntity {
+public class RefreshToken extends BaseEntity {
 
     @Column(nullable = false, unique = true, columnDefinition = "TEXT")
-    public String token;
+    private String token;
 
     @Column(nullable = false)
-    public Long userId;
+    private Long userId;
 
     @Column(nullable = false)
-    public LocalDateTime expiresAt;
+    private LocalDateTime expiresAt;
 
     @Column
-    public LocalDateTime revokedAt;
-
-    @Column(nullable = false, updatable = false)
-    public LocalDateTime createdAt;
-
-    @PrePersist
-    public void onCreate() {
-        this.createdAt = LocalDateTime.now();
-    }
+    private LocalDateTime revokedAt;
 
     public RefreshToken() {
     }
@@ -45,13 +38,36 @@ public class RefreshToken extends PanacheEntity {
         this.revokedAt = LocalDateTime.now();
     }
 
-    @Override
-    public String toString() {
-        return "RefreshToken{" +
-                "userId=" + userId +
-                ", expiresAt=" + expiresAt +
-                ", revokedAt=" + revokedAt +
-                '}';
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
+    }
+
+    public Long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
+    }
+
+    public LocalDateTime getExpiresAt() {
+        return expiresAt;
+    }
+
+    public void setExpiresAt(LocalDateTime expiresAt) {
+        this.expiresAt = expiresAt;
+    }
+
+    public LocalDateTime getRevokedAt() {
+        return revokedAt;
+    }
+
+    public void setRevokedAt(LocalDateTime revokedAt) {
+        this.revokedAt = revokedAt;
     }
 }
 

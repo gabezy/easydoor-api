@@ -1,20 +1,19 @@
 package br.com.gabezy.easydoorapi.domain.user.entities;
 
-import io.quarkus.hibernate.orm.panache.PanacheEntity;
+import br.com.gabezy.easydoorapi.domain.shared.BaseUpdatableEntity;
 import jakarta.persistence.*;
-import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
 @Entity
 @Table(name = "roles")
-public class Role extends PanacheEntity {
+public class Role extends BaseUpdatableEntity {
 
     @Column(nullable = false, unique = true, length = 100)
-    public String name;
+    private String name;
 
-    @Column(nullable = false, length = 255)
-    public String description;
+    @Column(nullable = false)
+    private String description;
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
@@ -22,24 +21,7 @@ public class Role extends PanacheEntity {
             joinColumns = @JoinColumn(name = "role_id"),
             inverseJoinColumns = @JoinColumn(name = "permission_id")
     )
-    public Set<Permission> permissions = new HashSet<>();
-
-    @Column(nullable = false, updatable = false)
-    public LocalDateTime createdAt;
-
-    @Column(nullable = false)
-    public LocalDateTime updatedAt;
-
-    @PrePersist
-    public void onCreate() {
-        this.createdAt = LocalDateTime.now();
-        this.updatedAt = LocalDateTime.now();
-    }
-
-    @PreUpdate
-    public void onUpdate() {
-        this.updatedAt = LocalDateTime.now();
-    }
+    private Set<Permission> permissions = new HashSet<>();
 
     public Role() {
     }
@@ -59,8 +41,31 @@ public class Role extends PanacheEntity {
 
     public boolean hasPermission(String permissionCode) {
         return this.permissions.stream()
-                .anyMatch(p -> p.code.equals(permissionCode));
+                .anyMatch(p -> p.getCode().equals(permissionCode));
     }
 
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public Set<Permission> getPermissions() {
+        return permissions;
+    }
+
+    public void setPermissions(Set<Permission> permissions) {
+        this.permissions = permissions;
+    }
 }
 

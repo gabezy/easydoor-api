@@ -1,30 +1,26 @@
 package br.com.gabezy.easydoorapi.domain.user.entities;
 
-import io.quarkus.hibernate.orm.panache.PanacheEntity;
+import br.com.gabezy.easydoorapi.domain.shared.BaseUpdatableEntity;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
-/**
- * User Aggregate Root - represents a system user with authentication and authorization
- * Password hashing is handled manually using bcrypt via quarkus-elytron-security-common
- */
 @Entity
 @Table(name = "users")
-public class User extends PanacheEntity {
+public class User extends BaseUpdatableEntity {
 
     @Column(nullable = false, unique = true, length = 100)
-    public String username;
+    private String username;
 
     @Column(nullable = false, unique = true)
-    public String email;
+    private String email;
 
     @Column(nullable = false)
-    public String passwordHash;
+    private String passwordHash;
 
     @Column(nullable = false)
-    public boolean active = true;
+    private boolean active = true;
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
@@ -32,27 +28,10 @@ public class User extends PanacheEntity {
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id")
     )
-    public Set<Role> roles = new HashSet<>();
-
-    @Column(nullable = false, updatable = false)
-    public LocalDateTime createdAt;
-
-    @Column(nullable = false)
-    public LocalDateTime updatedAt;
+    private Set<Role> roles = new HashSet<>();
 
     @Column
-    public LocalDateTime lastLogin;
-
-    @PrePersist
-    public void onCreate() {
-        this.createdAt = LocalDateTime.now();
-        this.updatedAt = LocalDateTime.now();
-    }
-
-    @PreUpdate
-    public void onUpdate() {
-        this.updatedAt = LocalDateTime.now();
-    }
+    private LocalDateTime lastLogin;
 
     public User() {
     }
@@ -80,6 +59,53 @@ public class User extends PanacheEntity {
                 .anyMatch(role -> role.hasPermission(permissionCode));
     }
 
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getPassword() {
+        return passwordHash;
+    }
+
+    public void setPasswordHash(String passwordHash) {
+        this.passwordHash = passwordHash;
+    }
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
+    }
+
+    public Set<Role> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(Set<Role> roles) {
+        this.roles = roles;
+    }
+
+    public LocalDateTime getLastLogin() {
+        return lastLogin;
+    }
+
+    public void setLastLogin(LocalDateTime lastLogin) {
+        this.lastLogin = lastLogin;
+    }
 }
 
 

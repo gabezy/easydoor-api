@@ -40,7 +40,7 @@ public class AuthResource {
 
     @POST
     @Path("/login")
-    public Response login(LoginRequestDTO request) {
+    public Response login(@Valid LoginRequestDTO request) {
         try {
             TokenResponseDTO response = authenticationService.login(request);
             return Response.ok(response).build();
@@ -57,15 +57,9 @@ public class AuthResource {
 
     @POST
     @Path("/refresh")
-    public Response refreshToken(RefreshTokenRequestDTO request) {
+    public Response refreshToken(@Valid RefreshTokenRequestDTO request) {
         try {
-            if (request.refreshToken == null || request.refreshToken.isEmpty()) {
-                return Response.status(Response.Status.BAD_REQUEST)
-                        .entity("{\"error\":\"Refresh token is required\"}")
-                        .build();
-            }
-
-            TokenResponseDTO response = authenticationService.refreshToken(request.refreshToken);
+            TokenResponseDTO response = authenticationService.refreshToken(request.refreshToken());
             return Response.ok(response).build();
         } catch (IllegalArgumentException e) {
             return Response.status(Response.Status.UNAUTHORIZED)
@@ -80,9 +74,9 @@ public class AuthResource {
 
     @POST
     @Path("/logout")
-    public Response logout(RefreshTokenRequestDTO request) {
+    public Response logout(@Valid RefreshTokenRequestDTO request) {
         try {
-            authenticationService.logout(request.refreshToken);
+            authenticationService.logout(request.refreshToken());
             return Response.ok("{\"message\":\"Logged out successfully\"}").build();
         } catch (Exception e) {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)

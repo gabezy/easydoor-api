@@ -2,10 +2,17 @@ package br.com.gabezy.easydoorapi.resources;
 
 import br.com.gabezy.easydoorapi.resources.dto.UserDTO;
 import br.com.gabezy.easydoorapi.services.UserService;
+import io.quarkus.security.Authenticated;
+import jakarta.annotation.security.PermitAll;
 import jakarta.annotation.security.RolesAllowed;
+import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.SecurityContext;
+import org.eclipse.microprofile.jwt.JsonWebToken;
+
 import java.util.List;
 
 @Path("/users")
@@ -15,12 +22,15 @@ public class UserResource {
 
     private final UserService userService;
 
+    @Inject
+    private JsonWebToken jwt;
+
     public UserResource(UserService userService) {
         this.userService = userService;
     }
 
     @GET
-    @RolesAllowed("ADMIN")
+    @Authenticated
     public Response getAllUsers() {
         try {
             List<UserDTO> users = userService.getAllUsers();
@@ -34,8 +44,8 @@ public class UserResource {
 
     @GET
     @Path("/{id}")
-    @RolesAllowed("ADMIN")
-    public Response getUserById(@PathParam("id") Long userId) {
+    @PermitAll
+    public Response getUserById(@PathParam("id") Long userId, @Context SecurityContext securityContext) {
         try {
             UserDTO user = userService.getUserById(userId);
             if (user == null) {

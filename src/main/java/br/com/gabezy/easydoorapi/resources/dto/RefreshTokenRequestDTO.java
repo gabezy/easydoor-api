@@ -1,16 +1,17 @@
 package br.com.gabezy.easydoorapi.resources.dto;
 
-/**
- * Refresh token request DTO
- */
-public class RefreshTokenRequestDTO {
-    public String refreshToken;
+import jakarta.validation.constraints.NotEmpty;
 
-    public RefreshTokenRequestDTO() {
-    }
+import java.util.Objects;
 
-    public RefreshTokenRequestDTO(String refreshToken) {
-        this.refreshToken = refreshToken;
+public record RefreshTokenRequestDTO(
+        @NotEmpty
+        String refreshToken
+) {
+    public RefreshTokenRequestDTO {
+        if (Objects.isNull(refreshToken) || refreshToken.isBlank()) {
+            throw new IllegalArgumentException("Refresh token is required");
+        }
     }
 }
 

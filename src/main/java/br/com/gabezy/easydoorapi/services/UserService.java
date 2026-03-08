@@ -53,15 +53,15 @@ public class UserService {
         }
 
         // Email can be updated if not taken by another user
-        if (email != null && !email.equals(user.email)) {
+        if (email != null && !email.equals(user.getEmail())) {
             User existingUser = userRepository.findByEmail(email);
             if (existingUser != null) {
                 throw new IllegalArgumentException("Email already in use");
             }
-            user.email = email;
+            user.setEmail(email);
         }
 
-        user.active = active;
+        user.setActive(active);
         userRepository.persist(user);
         return mapUserToDTO(user);
     }
@@ -102,26 +102,13 @@ public class UserService {
     public void deleteUser(Long userId) {
         User user = userRepository.findById(userId);
         if (user != null) {
-            user.active = false;
+            user.setActive(false);
             userRepository.persist(user);
         }
     }
 
     private UserDTO mapUserToDTO(User user) {
-        return new UserDTO(
-                user.id,
-                user.username,
-                user.email,
-                user.active,
-                user.createdAt,
-                user.updatedAt,
-                user.lastLogin,
-                user.roles.stream().map(r -> r.name).collect(Collectors.toSet()),
-                user.roles.stream()
-                        .flatMap(r -> r.permissions.stream())
-                        .map(p -> p.code)
-                        .collect(Collectors.toSet())
-        );
+        return new UserDTO(user);
     }
 }
 

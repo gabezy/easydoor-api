@@ -1,41 +1,44 @@
 package br.com.gabezy.easydoorapi.domain.user.entities;
 
+import br.com.gabezy.easydoorapi.domain.shared.BaseEntity;
 import io.quarkus.hibernate.orm.panache.PanacheEntity;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "permissions")
-public class Permission extends PanacheEntity {
+public class Permission extends BaseEntity {
 
     @Column(nullable = false, unique = true, length = 100)
-    public String code;
+    private String code;
 
     @Column(nullable = false, length = 255)
-    public String description;
+    private String description;
 
     @Column(nullable = false, updatable = false)
-    public LocalDateTime createdAt;
-
-    @Column(nullable = false)
-    public LocalDateTime updatedAt;
-
-    @PrePersist
-    public void onCreate() {
-        this.createdAt = LocalDateTime.now();
-        this.updatedAt = LocalDateTime.now();
-    }
-
-    @PreUpdate
-    public void onUpdate() {
-        this.updatedAt = LocalDateTime.now();
-    }
+    private LocalDateTime createdAt;
 
     public Permission() {
     }
 
     public Permission(String code, String description) {
         this.code = code;
+        this.description = description;
+    }
+
+    public String getCode() {
+        return code;
+    }
+
+    public void setCode(String code) {
+        this.code = code;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
         this.description = description;
     }
 

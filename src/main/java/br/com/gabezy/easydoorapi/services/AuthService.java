@@ -68,11 +68,11 @@ public class AuthService {
             throw new IllegalArgumentException("Invalid credentials");
         }
 
-        if (!user.active) {
+        if (!user.isActive()) {
             throw new IllegalArgumentException("User account is inactive");
         }
 
-        if (!BcryptUtil.matches(request.password(), user.passwordHash)) {
+        if (!BcryptUtil.matches(request.password(), user.getPassword())) {
             throw new IllegalArgumentException("Invalid credentials");
         }
 
@@ -100,9 +100,9 @@ public class AuthService {
         }
 
         var refreshToken = refreshTokenService.getValidToken(refreshTokenValue);
-        User user = userRepository.findByIdWithRoles(refreshToken.userId);
+        User user = userRepository.findByIdWithRoles(refreshToken.getUserId());
 
-        if (user == null || !user.active) {
+        if (user == null || !user.isActive()) {
             throw new IllegalArgumentException("User not found or inactive");
         }
 
