@@ -2,7 +2,9 @@ package br.com.gabezy.easydoorapi.services;
 
 import br.com.gabezy.easydoorapi.domain.auth.services.RefreshTokenService;
 import br.com.gabezy.easydoorapi.domain.auth.services.TokenGenerationService;
+import br.com.gabezy.easydoorapi.domain.shared.vo.Cpf;
 import br.com.gabezy.easydoorapi.domain.shared.vo.Email;
+import br.com.gabezy.easydoorapi.domain.user.entities.Client;
 import br.com.gabezy.easydoorapi.domain.user.entities.User;
 import br.com.gabezy.easydoorapi.infra.config.JwtProperties;
 import br.com.gabezy.easydoorapi.infra.repositories.RoleRepositoryImpl;
@@ -48,6 +50,14 @@ public class AuthService {
                 .ifPresent(user::addRole);
 
         user.persist();
+
+        var client = new Client(
+                request.username(),
+                new Cpf(request.cpf()).value(),
+                user.id
+        );
+
+        client.persist();
 
         return new TokenResponseDTO(
                 tokenGenerationService.generateAccessToken(user).value(),

@@ -3,8 +3,11 @@ package br.com.gabezy.easydoorapi.domain.user.entities;
 import br.com.gabezy.easydoorapi.domain.shared.entities.Address;
 import br.com.gabezy.easydoorapi.domain.shared.entities.BaseUpdatableEntity;
 import jakarta.persistence.*;
+import org.hibernate.envers.Audited;
+import org.hibernate.envers.NotAudited;
 
 @Entity
+@Audited
 @Table(name = "real_estate_agents")
 public class RealEstateAgent extends BaseUpdatableEntity {
 
@@ -18,6 +21,7 @@ public class RealEstateAgent extends BaseUpdatableEntity {
     private Long userId;
     @OneToOne
     @JoinColumn(name = "user_id", nullable = false, updatable = false, insertable = false)
+    @NotAudited
     private User user;
 
     public String getName() {

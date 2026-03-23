@@ -34,6 +34,9 @@ quarkus:
     level: INFO
     category:
       "br.com.gabezy.easydoorapi": DEBUG
+  hibernate-envers:
+    audit-table-suffix: ''
+    audit-table-prefix: 'hist_'
 
 jwt:
   access-token:

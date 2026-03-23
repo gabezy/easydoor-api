@@ -19,6 +19,24 @@ CREATE TABLE appointments (
     FOREIGN KEY (building_id) REFERENCES buildings(id) ON DELETE CASCADE
 );
 
+CREATE TABLE hist_appointments (
+    id BIGINT NOT NULL,
+    time TIMESTAMP NOT NULL,
+    client_id BIGINT NOT NULL,
+    real_estate_agent_id BIGINT NOT NULL,
+    building_id BIGINT NOT NULL,
+    canceled_at TIMESTAMP,
+    approved_at TIMESTAMP,
+    finished_at TIMESTAMP,
+    rating INT DEFAULT 0,
+    created_at TIMESTAMP,
+    updated_at TIMESTAMP,
+    REV INTEGER NOT NULL,
+    REVTYPE INTEGER,
+    PRIMARY KEY (id, REV),
+    FOREIGN KEY (REV) REFERENCES REVINFO(REV)
+);
+
 -- Create sequence for appointments
 CREATE SEQUENCE appointments_seq START WITH 1 INCREMENT BY 50;
 

@@ -5,10 +5,13 @@ import br.com.gabezy.easydoorapi.domain.shared.entities.BaseUpdatableEntity;
 import br.com.gabezy.easydoorapi.domain.user.entities.Client;
 import br.com.gabezy.easydoorapi.domain.user.entities.RealEstateAgent;
 import jakarta.persistence.*;
+import org.hibernate.envers.Audited;
+import org.hibernate.envers.NotAudited;
 
 import java.time.LocalDateTime;
 
 @Entity
+@Audited
 @Table(name = "appointments")
 public class Appontiment extends BaseUpdatableEntity {
 
@@ -19,6 +22,7 @@ public class Appontiment extends BaseUpdatableEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "client_id", updatable = false, insertable = false)
+    @NotAudited
     private Client client;
 
     @Column(name = "real_estate_agent_id", nullable = false)
@@ -26,6 +30,7 @@ public class Appontiment extends BaseUpdatableEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "real_estate_agent_id", updatable = false, insertable = false)
+    @NotAudited
     private RealEstateAgent realEstateAgent;
 
     @Column(name = "building_id", nullable = false)
@@ -33,6 +38,7 @@ public class Appontiment extends BaseUpdatableEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "building_id", updatable = false, insertable = false)
+    @NotAudited
     private Building building;
 
     private LocalDateTime canceledAt;

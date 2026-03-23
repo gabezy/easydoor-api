@@ -4,6 +4,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.MappedSuperclass;
 import jakarta.persistence.PreUpdate;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
 
@@ -11,14 +12,11 @@ import java.time.LocalDateTime;
 public abstract class BaseUpdatableEntity extends BaseEntity {
 
     @Column
+    @UpdateTimestamp
     protected LocalDateTime updatedAt;
-
-    @PreUpdate
-    public void onUpdate() {
-        this.updatedAt = LocalDateTime.now();
-    }
 
     public LocalDateTime getUpdatedAt() {
         return this.updatedAt;
     }
+
 }
