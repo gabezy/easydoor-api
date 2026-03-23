@@ -20,7 +20,7 @@ public record UserDTO (
         Set<String> permissions
 ) {
     public UserDTO(User user) {
-        this(user.getId(),
+        this(user.id,
              user.getUsername(),
              user.getEmail(),
              user.isActive(),

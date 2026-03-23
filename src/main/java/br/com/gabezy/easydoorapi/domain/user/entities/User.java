@@ -31,7 +31,6 @@ public class User extends BaseUpdatableEntity {
     )
     private Set<Role> roles = new HashSet<>();
 
-    @Column
     private LocalDateTime lastLogin;
 
     public User() {

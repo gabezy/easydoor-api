@@ -1,13 +1,10 @@
 package br.com.gabezy.easydoorapi.domain.building.entities;
 
+import br.com.gabezy.easydoorapi.domain.appointment.entities.Locker;
 import br.com.gabezy.easydoorapi.domain.shared.entities.Address;
 import br.com.gabezy.easydoorapi.domain.shared.entities.BaseUpdatableEntity;
-import jakarta.persistence.Column;
-import jakarta.persistence.Embedded;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
-
-import java.math.BigDecimal;
+import br.com.gabezy.easydoorapi.domain.shared.entities.GeographicalCoordinates;
+import jakarta.persistence.*;
 
 @Entity
 @Table(name = "buildings")
@@ -16,11 +13,15 @@ public class Building extends BaseUpdatableEntity {
     @Column(nullable = false)
     private String name;
 
-    @Column(nullable = false)
-    private BigDecimal longitude;
+    @Column(name = "locker_id")
+    private Long lockerId;
 
-    @Column(nullable = false)
-    private BigDecimal latitude;
+    @OneToOne
+    @JoinColumn(name = "locker_id", updatable = false, insertable = false)
+    private Locker locker;
+
+    @Embedded
+    private GeographicalCoordinates coordinates;
 
     @Column(nullable = false)
     private Double area;
@@ -37,22 +38,6 @@ public class Building extends BaseUpdatableEntity {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public BigDecimal getLongitude() {
-        return longitude;
-    }
-
-    public void setLongitude(BigDecimal longitude) {
-        this.longitude = longitude;
-    }
-
-    public BigDecimal getLatitude() {
-        return latitude;
-    }
-
-    public void setLatitude(BigDecimal latitude) {
-        this.latitude = latitude;
     }
 
     public Double getArea() {

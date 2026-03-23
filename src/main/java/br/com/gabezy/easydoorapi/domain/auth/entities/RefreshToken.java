@@ -1,12 +1,13 @@
 package br.com.gabezy.easydoorapi.domain.auth.entities;
 
 import br.com.gabezy.easydoorapi.domain.shared.entities.BaseEntity;
+import io.quarkus.hibernate.orm.panache.PanacheEntity;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "refresh_tokens")
-public class RefreshToken extends BaseEntity {
+public class RefreshToken extends PanacheEntity {
 
     @Column(nullable = false, unique = true, columnDefinition = "TEXT")
     private String token;

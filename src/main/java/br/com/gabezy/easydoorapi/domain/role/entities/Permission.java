@@ -14,9 +14,6 @@ public class Permission extends BaseEntity {
     @Column(nullable = false, length = 255)
     private String description;
 
-    @Column(nullable = false, updatable = false)
-    private LocalDateTime createdAt;
-
     public Permission() {
     }
 

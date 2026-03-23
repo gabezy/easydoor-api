@@ -7,29 +7,31 @@ CREATE TABLE buildings (
     city VARCHAR(255) NOT NULL,
     country VARCHAR(255) NOT NULL,
     state VARCHAR(255) NOT NULL,
-    zipCode VARCHAR(255) NOT NULL,
+    zip_code VARCHAR(255) NOT NULL,
     area FLOAT NOT NULL,
     description VARCHAR(255) NOT NULL,
     latitude NUMERIC(38,2) NOT NULL,
     longitude NUMERIC(38,2) NOT NULL,
     name VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP NOT NULL,
+    updated_at TIMESTAMP NOT NULL,
     PRIMARY KEY (id)
 );
 
 CREATE TABLE permissions (
     id BIGINT NOT NULL,
     code VARCHAR(100) NOT NULL UNIQUE,
-    createdAt TIMESTAMP NOT NULL,
+    created_at TIMESTAMP NOT NULL,
     description VARCHAR(255) NOT NULL,
     PRIMARY KEY (id)
 );
 
 CREATE TABLE refresh_tokens (
     id BIGINT NOT NULL,
-    expiresAt TIMESTAMP NOT NULL,
-    revokedAt TIMESTAMP,
+    expires_at TIMESTAMP NOT NULL,
+    revoked_at TIMESTAMP,
     token TEXT NOT NULL UNIQUE,
-    userId BIGINT NOT NULL,
+    user_id BIGINT NOT NULL,
     PRIMARY KEY (id)
 );
 
@@ -37,6 +39,8 @@ CREATE TABLE roles (
     id BIGINT NOT NULL,
     description VARCHAR(255) NOT NULL,
     name VARCHAR(100) NOT NULL UNIQUE,
+    created_at TIMESTAMP NOT NULL,
+    updated_at TIMESTAMP,
     PRIMARY KEY (id)
 );
 
@@ -52,9 +56,11 @@ CREATE TABLE users (
     id BIGINT NOT NULL,
     active BOOLEAN NOT NULL,
     email VARCHAR(255) NOT NULL UNIQUE,
-    lastLogin TIMESTAMP,
-    passwordHash VARCHAR(255) NOT NULL,
+    last_login TIMESTAMP,
+    password_hash VARCHAR(255) NOT NULL,
     username VARCHAR(100) NOT NULL UNIQUE,
+    created_at TIMESTAMP NOT NULL,
+    updated_at TIMESTAMP,
     PRIMARY KEY (id)
 );
 
