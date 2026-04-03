@@ -1,26 +1,26 @@
 package br.com.gabezy.easydoorapi.resources.dto.building;
 
 import br.com.gabezy.easydoorapi.resources.dto.AddressDTO;
+import br.com.gabezy.easydoorapi.resources.dto.CoordinatesDTO;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.*;
 
-import java.math.BigDecimal;
 
 public record CreateBuildingRequest(
-        @NotEmpty
+        @NotBlank
         String name,
         @NotNull
-        BigDecimal longitude,
-        @NotNull
-        BigDecimal latitude,
+        @Valid
+        CoordinatesDTO coordinates,
         @NotNull
         @Positive
         Double area,
-        @NotEmpty
+        @NotBlank
+        @Size(max = 255)
         String description,
         @NotNull
         @Valid
-        AddressDTO address
+        AddressDTO address,
+        @NotNull
+        Long lockerId
 ) {}

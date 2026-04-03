@@ -11,6 +11,14 @@ import jakarta.persistence.Table;
 @Table( name = "lockers")
 public class Locker extends BaseEntity {
 
+    public Locker() {};
+
+    public Locker(String serialNumber, String name, GeographicalCoordinates coordinates) {
+        this.serialNumber = serialNumber;
+        this.name = name;
+        this.coordinates = coordinates;
+    }
+
     @Column(unique = true, nullable = false)
     public String serialNumber;
 

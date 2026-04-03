@@ -9,57 +9,36 @@ import jakarta.persistence.*;
 @Table(name = "buildings")
 public class Building extends BaseUpdatableEntity {
 
+    public Building() {}
+
+    public Building(String name, Locker locker, Double area, String description, Address address) {
+        this.name = name;
+        this.locker = locker;
+        this.area = area;
+        this.description = description;
+        this.address = address;
+    }
+
     @Column(nullable = false)
-    private String name;
+    public String name;
 
     @Column(name = "locker_id", nullable = false)
-    private Long lockerId;
+    public Long lockerId;
 
     @OneToOne
     @JoinColumn(name = "locker_id", updatable = false, insertable = false)
-    private Locker locker;
+    public Locker locker;
 
     @Embedded
-    private GeographicalCoordinates coordinates;
+    public GeographicalCoordinates coordinates;
 
     @Column(nullable = false)
-    private Double area;
+    public Double area;
 
     @Column(nullable = false)
-    private String description;
+    public String description;
 
     @Embedded
-    private Address address;
+    public Address address;
 
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public Double getArea() {
-        return area;
-    }
-
-    public void setArea(Double area) {
-        this.area = area;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public Address getAddress() {
-        return address;
-    }
-
-    public void setAddress(Address address) {
-        this.address = address;
-    }
 }

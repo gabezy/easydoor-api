@@ -1,63 +1,36 @@
 package br.com.gabezy.easydoorapi.domain.shared.entities;
 
+import br.com.gabezy.easydoorapi.resources.dto.AddressDTO;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 
 @Embeddable
 public class Address {
 
-    @Column(nullable = false)
-    private String address;
-
-    @Column(nullable = false)
-    private String city;
-
-    @Column(nullable = false)
-    private String state;
-
-    @Column(nullable = false)
-    private String country;
-
-    @Column(nullable = false)
-    private String zipCode;
-
-    public String getAddress() {
-        return address;
+    public Address() {
     }
 
-    public void setAddress(String address) {
+    public Address(String address, String city, String state, String country, String zipCode) {
         this.address = address;
-    }
-
-    public String getCity() {
-        return city;
-    }
-
-    public void setCity(String city) {
         this.city = city;
-    }
-
-    public String getState() {
-        return state;
-    }
-
-    public void setState(String state) {
         this.state = state;
-    }
-
-    public String getCountry() {
-        return country;
-    }
-
-    public void setCountry(String country) {
         this.country = country;
+        this.zipCode = zipCode.replace("-", "");
     }
 
-    public String getZipCode() {
-        return zipCode;
-    }
+    @Column(nullable = false)
+    public String address;
 
-    public void setZipCode(String zipCode) {
-        this.zipCode = zipCode;
-    }
+    @Column(nullable = false)
+    public String city;
+
+    @Column(nullable = false)
+    public String state;
+
+    @Column(nullable = false)
+    public String country;
+
+    @Column(nullable = false)
+    public String zipCode;
+
 }
