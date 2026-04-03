@@ -1,0 +1,70 @@
+# application-test.yaml
+# Configuração de teste com banco H2 em memória e sem Flyway
+
+quarkus:
+  application:
+    name: easydoorapi
+    version: 1.0.0-SNAPSHOT
+
+  # Datasource com H2 em memória
+  datasource:
+    db-kind: h2
+    jdbc:
+      url: jdbc:h2:mem:test;MODE=PostgreSQL;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    username: sa
+    password: ""
+    devservices:
+      enabled: false  # Desabilitar postgres dev services
+
+  # Hibernate - criar schema automaticamente
+  hibernate-orm:
+    database:
+      generation: create  # Criar tabelas automaticamente
+    physical-naming-strategy: br.com.gabezy.easydoorapi.infra.config.SnakeCaseNamingStrategy
+    log:
+      sql: false
+
+  # Desabilitar Flyway
+  flyway:
+    active: false
+    enable: false
+    migrate-at-start: false
+
+  # Desabilitar Envers (auditoria)
+  hibernate-envers:
+    active: false
+    audit-table-suffix: ''
+    audit-table-prefix: 'hist_'
+
+  # HTTP
+  http:
+    port: 8081
+    cors: true
+
+  # Logs - apenas essencial
+  log:
+    level: WARN
+    category:
+      "br.com.gabezy.easydoorapi": INFO
+      "org.hibernate": WARN
+      "org.hibernate.SQL": WARN
+
+# JWT
+jwt:
+  access-token:
+    ttl-seconds: 900
+  refresh-token:
+    ttl-seconds: 604800
+
+mp:
+  jwt:
+    verify:
+      publickey:
+        location: "/jwt/publicKey.pem"
+      issuer: "easydoor-api"
+
+smallrye:
+  jwt:
+    sign:
+      key:
+        location: "/jwt/privateKey.pem"

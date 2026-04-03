@@ -1,5 +1,6 @@
-package br.com.gabezy.easydoorapi.resources.dto;
+package br.com.gabezy.easydoorapi.resources.dto.building;
 
+import br.com.gabezy.easydoorapi.resources.dto.AddressDTO;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;

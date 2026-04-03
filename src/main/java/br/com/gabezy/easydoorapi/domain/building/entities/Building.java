@@ -1,6 +1,5 @@
 package br.com.gabezy.easydoorapi.domain.building.entities;
 
-import br.com.gabezy.easydoorapi.domain.appointment.entities.Locker;
 import br.com.gabezy.easydoorapi.domain.shared.entities.Address;
 import br.com.gabezy.easydoorapi.domain.shared.entities.BaseUpdatableEntity;
 import br.com.gabezy.easydoorapi.domain.shared.entities.GeographicalCoordinates;
@@ -13,7 +12,7 @@ public class Building extends BaseUpdatableEntity {
     @Column(nullable = false)
     private String name;
 
-    @Column(name = "locker_id")
+    @Column(name = "locker_id", nullable = false)
     private Long lockerId;
 
     @OneToOne
