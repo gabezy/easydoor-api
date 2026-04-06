@@ -22,7 +22,8 @@ quarkus:
       generation: drop-and-create  # Criar e deleta tabelas automaticamente
     physical-naming-strategy: br.com.gabezy.easydoorapi.infra.config.SnakeCaseNamingStrategy
     log:
-      sql: false
+      statement: true
+      sql: true
 
   # Desabilitar Flyway
   flyway:

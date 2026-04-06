@@ -1,6 +1,7 @@
 package br.com.gabezy.easydoorapi.domain.user.entities;
 
 import br.com.gabezy.easydoorapi.domain.shared.entities.BaseUpdatableEntity;
+import br.com.gabezy.easydoorapi.domain.shared.vo.Cpf;
 import jakarta.persistence.*;
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
@@ -24,7 +25,7 @@ public class Client extends BaseUpdatableEntity {
 
     public Client(String name, String cpf, Long userId) {
         this.name = name;
-        this.cpf = cpf;
+        this.cpf = new Cpf(cpf).value();
         this.userId = userId;
     }
 

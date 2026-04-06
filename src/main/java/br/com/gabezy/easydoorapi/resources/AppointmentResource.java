@@ -1,14 +1,11 @@
 package br.com.gabezy.easydoorapi.resources;
 
 import br.com.gabezy.easydoorapi.resources.dto.appointment.CreateAppointmentRequest;
+import br.com.gabezy.easydoorapi.resources.dto.appointment.FilterAppointmentDTO;
 import br.com.gabezy.easydoorapi.services.AppointmentService;
-import br.com.gabezy.easydoorapi.services.UserService;
-import jakarta.annotation.security.PermitAll;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.validation.Valid;
-import jakarta.ws.rs.Consumes;
-import jakarta.ws.rs.POST;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.UriBuilder;
@@ -25,10 +22,24 @@ public class AppointmentResource {
     }
 
     @POST
+    @RolesAllowed({"ADMIN", "CREATE_APPOINTMENT"})
     public Response createAppointment(@Valid CreateAppointmentRequest request) {
         var appointment = service.createAppointment(request);
         return Response.created(UriBuilder.fromUri("/appointments/{id}").build(appointment.id))
                 .build();
+    }
+
+    @GET
+    @RolesAllowed({"ADMIN", "VIEW_APPOINTMENT"})
+    public Response getAllAppointments(@Valid FilterAppointmentDTO filter) {
+        return Response.ok(service.findByFilter(filter)).build();
+    }
+
+    @GET
+    @Path("/{id}")
+    @RolesAllowed({"ADMIN", "VIEW_APPOINTMENT"})
+    public Response getAppointmentById(@PathParam("id") Long id) {
+        return Response.ok(service.findById(id)).build();
     }
 
 }

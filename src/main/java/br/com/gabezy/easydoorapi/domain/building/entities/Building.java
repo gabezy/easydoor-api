@@ -11,9 +11,10 @@ public class Building extends BaseUpdatableEntity {
 
     public Building() {}
 
-    public Building(String name, Locker locker, Double area, String description, Address address) {
+    public Building(String name, Long lockerId, GeographicalCoordinates coordinates, Double area, String description, Address address) {
         this.name = name;
-        this.locker = locker;
+        this.lockerId = lockerId;
+        this.coordinates = coordinates;
         this.area = area;
         this.description = description;
         this.address = address;

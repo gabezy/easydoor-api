@@ -1,0 +1,109 @@
+package br.com.gabezy.easydoorapi.resources;
+
+import br.com.gabezy.easydoorapi.domain.appointment.entities.Appontiment;
+import br.com.gabezy.easydoorapi.infra.exceptions.ResourceNotFoundException;
+import br.com.gabezy.easydoorapi.resources.dto.appointment.CreateAppointmentRequest;
+import br.com.gabezy.easydoorapi.services.AppointmentService;
+import io.quarkus.test.InjectMock;
+import io.quarkus.test.common.http.TestHTTPEndpoint;
+import io.quarkus.test.common.http.TestHTTPResource;
+import io.quarkus.test.junit.QuarkusTest;
+import io.quarkus.test.security.TestSecurity;
+import io.restassured.http.ContentType;
+import org.hamcrest.Matchers;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
+
+import java.net.URL;
+import java.time.LocalDateTime;
+
+import static io.restassured.RestAssured.given;
+import static io.restassured.RestAssured.when;
+
+@QuarkusTest
+@TestHTTPEndpoint(AppointmentResource.class)
+public class AppointmentResourceTest {
+
+    @TestHTTPResource
+    URL url;
+
+    @InjectMock
+    AppointmentService appointmentService;
+
+    @Test
+    @TestSecurity(user = "AGENT", roles = {"CREATE_APPOINTMENT"})
+    public void shouldCreateAppointment() {
+        var request = new CreateAppointmentRequest(LocalDateTime.now(), 1L, 1L, 1L);
+        var newAppointment = new Appontiment(LocalDateTime.now(), 1L, 1L, 1L, null, null, null, null);
+        newAppointment.id = 1L;
+        Mockito.when(appointmentService.createAppointment(Mockito.any())).thenReturn(newAppointment);
+
+        given()
+            .contentType(ContentType.JSON)
+            .body(request)
+        .when()
+            .post()
+            .then()
+            .statusCode(201)
+            .header("Location", Matchers.matchesPattern(url.toString() + "/\\d+"));
+
+        Mockito.verify(appointmentService, Mockito.times(1)).createAppointment(Mockito.any());
+    }
+
+    @Test
+    @TestSecurity(user = "AGENT", roles = {"VIEW_APPOINTMENT"})
+    public void shouldFindAppointmentById() {
+        var newAppointment = new Appontiment(LocalDateTime.now(), 1L, 1L, 1L, null, null, null, null);
+        newAppointment.id = 1L;
+        Mockito.when(appointmentService.findById(Mockito.any())).thenReturn(newAppointment);
+
+        when()
+            .get("/1")
+            .then()
+            .contentType(ContentType.JSON)
+            .statusCode(200)
+            .body("id", Matchers.equalTo(1));
+
+        Mockito.verify(appointmentService, Mockito.times(1)).findById(1L);
+    }
+
+
+    @Test
+    @TestSecurity(user = "AGENT", roles = {"VIEW_APPOINTMENT"})
+    public void shouldNotFindAppointmentById() {
+        Mockito.when(appointmentService.findById(Mockito.any())).thenThrow(new ResourceNotFoundException("Appointment not found"));
+
+        when()
+            .get("/1")
+            .then()
+            .contentType(ContentType.JSON)
+            .statusCode(404)
+            .body("message", Matchers.equalTo("Appointment not found"))
+            .body("error", Matchers.equalTo("NOT_FOUND"))
+            .body("status", Matchers.equalTo(404));
+
+
+        Mockito.verify(appointmentService, Mockito.times(1)).findById(1L);
+    }
+
+    @Test
+    public void shouldNotCreateAppointmentWithoutAuthentication() {
+        var request = new CreateAppointmentRequest(LocalDateTime.now(), 1L, 1L, 1L);
+        given()
+            .contentType(ContentType.JSON)
+            .body(request)
+        .when()
+            .post()
+            .then()
+            .statusCode(401);
+    }
+
+    @Test
+    public void shouldNotFindAppointmentWithoutAuthentication() {
+        when()
+            .get("/1")
+            .then()
+            .statusCode(401);
+    }
+
+}

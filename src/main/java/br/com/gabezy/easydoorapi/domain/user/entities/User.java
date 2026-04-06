@@ -2,6 +2,7 @@ package br.com.gabezy.easydoorapi.domain.user.entities;
 
 import br.com.gabezy.easydoorapi.domain.role.entities.Role;
 import br.com.gabezy.easydoorapi.domain.shared.entities.BaseUpdatableEntity;
+import br.com.gabezy.easydoorapi.domain.shared.vo.Email;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.HashSet;
@@ -38,7 +39,7 @@ public class User extends BaseUpdatableEntity {
 
     public User(String username, String email, String passwordHash) {
         this.username = username;
-        this.email = email;
+        this.email = new Email(email).value();
         this.passwordHash = passwordHash;
     }
 
