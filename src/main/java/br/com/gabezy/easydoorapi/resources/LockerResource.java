@@ -24,7 +24,7 @@ public class LockerResource {
     }
 
     @POST
-    @RolesAllowed("ADMIN")
+    @RolesAllowed({"ADMIN", "CREATE_LOCKER"})
     public Response createLocker(@Valid CreateLockerRequest request) {
         var locker = lockerService.create(request);
         return Response.created(UriBuilder.fromUri("/lockers/{id}").build(locker.id)).build();

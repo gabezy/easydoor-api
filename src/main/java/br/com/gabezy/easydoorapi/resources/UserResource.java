@@ -25,7 +25,7 @@ public class UserResource {
     }
 
     @GET
-    @Authenticated
+    @RolesAllowed({"ADMIN", "VIEW_USERS"})
     public Response getAllUsers() {
         try {
             List<UserDTO> users = userService.getAllUsers();
@@ -39,29 +39,10 @@ public class UserResource {
 
     @GET
     @Path("/{id}")
-    @PermitAll
+    @RolesAllowed({"ADMIN", "VIEW_USERS"})
     public Response getUserById(@PathParam("id") Long userId) {
         try {
             UserDTO user = userService.getUserById(userId);
-            if (user == null) {
-                return Response.status(Response.Status.NOT_FOUND)
-                        .entity("{\"error\":\"User not found\"}")
-                        .build();
-            }
-            return Response.ok(user).build();
-        } catch (Exception e) {
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                    .entity("{\"error\":\"Failed to fetch user\"}")
-                    .build();
-        }
-    }
-
-    @GET
-    @Path("/username/{username}")
-    @RolesAllowed("ADMIN")
-    public Response getUserByUsername(@PathParam("username") String username) {
-        try {
-            UserDTO user = userService.getUserByUsername(username);
             if (user == null) {
                 return Response.status(Response.Status.NOT_FOUND)
                         .entity("{\"error\":\"User not found\"}")
