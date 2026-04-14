@@ -5,6 +5,7 @@ import br.com.gabezy.easydoorapi.resources.dto.RefreshTokenRequestDTO;
 import br.com.gabezy.easydoorapi.resources.dto.RegisterRequestDTO;
 import br.com.gabezy.easydoorapi.resources.dto.TokenResponseDTO;
 import br.com.gabezy.easydoorapi.services.AuthService;
+import jakarta.annotation.security.PermitAll;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
@@ -22,37 +23,19 @@ public class AuthResource {
     }
 
     @POST
-    @Path("/register")
+    @PermitAll
+    @Path("/register/client")
     public Response register(@Valid RegisterRequestDTO request) {
-        try {
-            TokenResponseDTO response = authenticationService.register(request);
-            return Response.status(Response.Status.CREATED).entity(response).build();
-        } catch (IllegalArgumentException e) {
-            return Response.status(Response.Status.CONFLICT)
-                    .entity("{\"error\":\"" + e.getMessage() + "\"}")
-                    .build();
-        } catch (Exception e) {
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                    .entity("{\"error\":\"Registration failed\"}")
-                    .build();
-        }
+        TokenResponseDTO response = authenticationService.registerClient(request);
+        return Response.status(Response.Status.CREATED).entity(response).build();
     }
 
     @POST
+    @PermitAll
     @Path("/login")
     public Response login(@Valid LoginRequestDTO request) {
-        try {
-            TokenResponseDTO response = authenticationService.login(request);
-            return Response.ok(response).build();
-        } catch (IllegalArgumentException e) {
-            return Response.status(Response.Status.UNAUTHORIZED)
-                    .entity("{\"error\":\"" + e.getMessage() + "\"}")
-                    .build();
-        } catch (Exception e) {
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                    .entity("{\"error\":\"Login failed\"}")
-                    .build();
-        }
+        TokenResponseDTO response = authenticationService.login(request);
+        return Response.ok(response).build();
     }
 
     @POST

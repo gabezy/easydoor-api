@@ -30,7 +30,7 @@ public class AppointmentResource {
     }
 
     @GET
-    @RolesAllowed({"ADMIN", "VIEW_APPOINTMENT"})
+    @RolesAllowed({"ADMIN", "VIEW_APPOINTMENTS"})
     public Response getAllAppointments(@Valid FilterAppointmentDTO filter) {
         return Response.ok(service.findByFilter(filter)).build();
     }

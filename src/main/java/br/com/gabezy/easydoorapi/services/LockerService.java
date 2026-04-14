@@ -9,6 +9,8 @@ import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import org.mapstruct.factory.Mappers;
 
+import java.util.List;
+
 @ApplicationScoped
 public class LockerService {
 
@@ -24,6 +26,10 @@ public class LockerService {
         var locker = mapper.request2Entity(request);
         lockerRepository.persist(locker);
         return locker;
+    }
+
+    public List<Locker> findAll() {
+        return lockerRepository.listAll();
     }
 
 

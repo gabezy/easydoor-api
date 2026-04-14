@@ -13,6 +13,7 @@ import jakarta.persistence.criteria.Root;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @ApplicationScoped
@@ -29,6 +30,10 @@ public class BuildingRepositoryImpl implements BuildingRepository {
 
     @Override
     public List<Building> findAllByFilter(FilterBuildingDTO filter) {
+        if (Objects.isNull(filter)) {
+            return em.createQuery("SELECT b FROM Building b", Building.class).getResultList();
+        }
+
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<Building> query = cb.createQuery(Building.class);
         Root<Building> building = query.from(Building.class);

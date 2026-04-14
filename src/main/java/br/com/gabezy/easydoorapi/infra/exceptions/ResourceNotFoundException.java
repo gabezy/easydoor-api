@@ -1,18 +1,9 @@
 package br.com.gabezy.easydoorapi.infra.exceptions;
 
-public class ResourceNotFoundException extends RuntimeException {
-    private int statusCode = 404;
+public class ResourceNotFoundException extends ApiException {
 
     public ResourceNotFoundException(String message) {
-        super(message);
+        super(message, 404, "Not Found");
     }
 
-    public ResourceNotFoundException(String message, int statusCode) {
-        super(message);
-        this.statusCode = statusCode;
-    }
-
-    public int getStatusCode() {
-        return statusCode;
-    }
 }

@@ -3,6 +3,7 @@ package br.com.gabezy.easydoorapi.resources;
 import br.com.gabezy.easydoorapi.domain.appointment.entities.Appontiment;
 import br.com.gabezy.easydoorapi.infra.exceptions.ResourceNotFoundException;
 import br.com.gabezy.easydoorapi.resources.dto.appointment.CreateAppointmentRequest;
+import br.com.gabezy.easydoorapi.resources.dto.appointment.FilterAppointmentDTO;
 import br.com.gabezy.easydoorapi.services.AppointmentService;
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.common.http.TestHTTPEndpoint;
@@ -12,13 +13,18 @@ import io.quarkus.test.security.TestSecurity;
 import io.restassured.http.ContentType;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
 import java.net.URL;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Collections;
+import java.util.Map;
 
 import static io.restassured.RestAssured.given;
 import static io.restassured.RestAssured.when;
+import static org.junit.jupiter.api.Assertions.*;
 
 @QuarkusTest
 @TestHTTPEndpoint(AppointmentResource.class)
@@ -104,6 +110,40 @@ public class AppointmentResourceTest {
             .get("/1")
             .then()
             .statusCode(401);
+    }
+
+    @Test
+    @TestSecurity(user = "AGENT", roles = {"VIEW_APPOINTMENTS"})
+    public void shouldFindByFilter() {
+        Map<String, Object> params = Map.of(
+                "clientId", 1,
+                "realEstateAgentId", 1,
+                "dateFrom", "2026-01-20"
+        );
+
+        Mockito.when(appointmentService.findByFilter(Mockito.any(FilterAppointmentDTO.class)))
+                .thenReturn(Collections.emptyList());
+
+        given()
+            .queryParams(params)
+        .when()
+            .get()
+            .then()
+            .contentType(ContentType.JSON)
+            .statusCode(200)
+            .body("size()", Matchers.equalTo(0));
+
+        ArgumentCaptor<FilterAppointmentDTO> filterCaptor = ArgumentCaptor.forClass(FilterAppointmentDTO.class);
+        Mockito.verify(appointmentService).findByFilter(filterCaptor.capture());
+
+        // Fazer asserções sobre o objeto capturado
+        FilterAppointmentDTO capturedFilter = filterCaptor.getValue();
+        assertEquals(1L, capturedFilter.clientId());
+        assertEquals(1L, capturedFilter.realEstateAgentId());
+        assertEquals(LocalDate.of(2026, 1, 20), capturedFilter.dateFrom());
+        assertNull(capturedFilter.buildingId());
+        assertNull(capturedFilter.dateTo());
+        assertFalse(capturedFilter.canceled());
     }
 
 }

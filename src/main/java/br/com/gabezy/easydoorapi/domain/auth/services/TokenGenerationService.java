@@ -8,6 +8,10 @@ import io.smallrye.jwt.build.Jwt;
 import jakarta.enterprise.context.ApplicationScoped;
 
 import java.time.Duration;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @ApplicationScoped
@@ -25,15 +29,31 @@ public class TokenGenerationService {
             throw new IllegalStateException("Cannot generate token for inactive user");
         }
 
-        var groups = user.getRoles().stream()
-                .flatMap(role -> role.getPermissions().stream())
-                .map(Permission::getCode)
-                .collect(Collectors.toSet());
+        Set<String> roles = new HashSet<>();
+        Set<String> permissions = new HashSet<>();
+
+        boolean isAdmin = false;
+
+        for (var role : user.getRoles()) {
+            if (role.getName().equalsIgnoreCase("ADMIN")) {
+                isAdmin = true;
+            }
+
+            roles.add(role.getName());
+            permissions.addAll(role.getPermissions().stream()
+                    .map(Permission::getCode)
+                    .collect(Collectors.toSet()));
+        }
+
+        if (isAdmin) {
+            permissions.add("ADMIN");
+        }
 
         String token = Jwt.issuer("easydoor-api")
                 .subject(user.getUsername())
                 .audience("easydoor-users")
-                .groups(groups)
+                .groups(permissions)
+                .claim("roles", roles)
                 .claim("email", user.getEmail())
                 .claim("user_id", user.id)
                 .expiresIn(Duration.ofSeconds(jwtProperties.accessToken().ttlSeconds()))

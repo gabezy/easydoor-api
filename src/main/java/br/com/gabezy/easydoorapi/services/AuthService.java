@@ -7,6 +7,7 @@ import br.com.gabezy.easydoorapi.domain.shared.vo.Email;
 import br.com.gabezy.easydoorapi.domain.user.entities.Client;
 import br.com.gabezy.easydoorapi.domain.user.entities.User;
 import br.com.gabezy.easydoorapi.infra.config.JwtProperties;
+import br.com.gabezy.easydoorapi.infra.exceptions.NegocioException;
 import br.com.gabezy.easydoorapi.infra.repositories.RoleRepositoryImpl;
 import br.com.gabezy.easydoorapi.resources.dto.LoginRequestDTO;
 import br.com.gabezy.easydoorapi.resources.dto.RegisterRequestDTO;
@@ -15,6 +16,7 @@ import io.quarkus.elytron.security.common.BcryptUtil;
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.transaction.Transactional;
+import jakarta.ws.rs.core.Response;
 
 import java.time.LocalDateTime;
 
@@ -38,15 +40,15 @@ public class AuthService {
     }
 
     @Transactional
-    public TokenResponseDTO register(RegisterRequestDTO request) {
+    public TokenResponseDTO registerClient(RegisterRequestDTO request) {
         Email emailVO = new Email(request.email());
         if (userService.usernameExists(request.username()) || userService.emailExists(emailVO.value())) {
-            throw new IllegalArgumentException("Username or email already exists");
+            throw new NegocioException("Username or email already exists");
         }
         String hashedPassword = BcryptUtil.bcryptHash(request.password());
         User user = new User(request.username(), emailVO.value(), hashedPassword);
 
-        roleRepositoryImpl.findByName("USER")
+        roleRepositoryImpl.findByName("CLIENT")
                 .ifPresent(user::addRole);
 
         user.persist();
@@ -71,11 +73,11 @@ public class AuthService {
         User user = userService.findUserWithRoles(request.username());
 
         if (!user.isActive()) {
-            throw new IllegalArgumentException("User account is inactive");
+            throw new NegocioException("User account is inactive", 423, "Locked");
         }
 
         if (!BcryptUtil.matches(request.password(), user.getPassword())) {
-            throw new IllegalArgumentException("Invalid credentials");
+            throw new NegocioException("Invalid credentials");
         }
 
         user.recordLogin();

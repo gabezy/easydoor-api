@@ -6,6 +6,7 @@ import br.com.gabezy.easydoorapi.infra.mappers.BuildingMapper;
 import br.com.gabezy.easydoorapi.resources.dto.building.CreateBuildingRequest;
 import br.com.gabezy.easydoorapi.resources.dto.building.FilterBuildingDTO;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import org.mapstruct.factory.Mappers;
 
@@ -21,6 +22,7 @@ public class BuildingService {
         this.repository = repository;
     }
 
+    @Transactional
     public Building create(@Valid CreateBuildingRequest request) {
         var building = mapper.request2Entity(request);
         repository.persist(building);

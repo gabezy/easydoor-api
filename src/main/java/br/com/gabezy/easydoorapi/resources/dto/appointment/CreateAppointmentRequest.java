@@ -1,5 +1,6 @@
 package br.com.gabezy.easydoorapi.resources.dto.appointment;
 
+import br.com.gabezy.easydoorapi.domain.annotations.DateTimeFormat;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.constraints.NotNull;
 
@@ -7,7 +8,7 @@ import java.time.LocalDateTime;
 
 public record CreateAppointmentRequest(
         @NotNull
-        @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+        @DateTimeFormat
         LocalDateTime time,
         @NotNull
         Long clientId,
