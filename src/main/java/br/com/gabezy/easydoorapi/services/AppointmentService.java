@@ -2,6 +2,7 @@ package br.com.gabezy.easydoorapi.services;
 
 import br.com.gabezy.easydoorapi.domain.appointment.entities.Appontiment;
 import br.com.gabezy.easydoorapi.domain.appointment.repositories.AppointmentRepository;
+import br.com.gabezy.easydoorapi.domain.user.repositories.ClientRepository;
 import br.com.gabezy.easydoorapi.infra.exceptions.ResourceNotFoundException;
 import br.com.gabezy.easydoorapi.infra.mappers.AppointmentMapper;
 import br.com.gabezy.easydoorapi.resources.dto.appointment.CreateAppointmentRequest;
@@ -18,14 +19,20 @@ public class AppointmentService {
 
     private final AppointmentMapper mapper = Mappers.getMapper(AppointmentMapper.class);
     private final AppointmentRepository appointmentRepository;
+    private final ClientRepository clientRepository;
 
-    public AppointmentService(AppointmentRepository appointmentRepository) {
+    public AppointmentService(AppointmentRepository appointmentRepository, ClientRepository clientRepository) {
         this.appointmentRepository = appointmentRepository;
+        this.clientRepository = clientRepository;
     }
 
     @Transactional
     public Appontiment createAppointment(@Valid CreateAppointmentRequest request) {
         var appointment = mapper.request2Entity(request);
+
+        appointment.clientId = clientRepository.findByUserId(request.userId())
+                        .map(client -> client.id)
+                        .orElseThrow(() -> new ResourceNotFoundException("Client not found for user id: " + request.userId()));
         appointmentRepository.persist(appointment);
         return appointment;
     }

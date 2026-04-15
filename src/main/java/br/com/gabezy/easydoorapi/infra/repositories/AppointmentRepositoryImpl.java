@@ -2,12 +2,15 @@ package br.com.gabezy.easydoorapi.infra.repositories;
 
 import br.com.gabezy.easydoorapi.domain.appointment.entities.Appontiment;
 import br.com.gabezy.easydoorapi.domain.appointment.repositories.AppointmentRepository;
+import br.com.gabezy.easydoorapi.domain.user.entities.Client;
+import br.com.gabezy.easydoorapi.domain.user.entities.User;
 import br.com.gabezy.easydoorapi.resources.dto.appointment.FilterAppointmentDTO;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 
@@ -27,10 +30,18 @@ public class AppointmentRepositoryImpl implements AppointmentRepository {
         CriteriaQuery<Appontiment> query = cb.createQuery(Appontiment.class);
         Root<Appontiment> appointment = query.from(Appontiment.class);
 
+        // Joins com Client e User
+        Join<Appontiment, Client> clientJoin = appointment.join("client");
+        Join<Client, User> userJoin = clientJoin.join("user");
+
         List<Predicate> predicates = new ArrayList<>();
 
         if (Objects.nonNull(filter.clientId())) {
             predicates.add(cb.equal(appointment.get("clientId"), filter.clientId()));
+        }
+
+        if (Objects.nonNull(filter.userId())) {
+            predicates.add(cb.equal(userJoin.get("id"), filter.userId()));
         }
 
         if (Objects.nonNull(filter.realEstateAgentId())) {

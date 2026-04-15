@@ -17,6 +17,9 @@ public record FilterAppointmentDTO(
         @Schema(description = "Filter by client identifier", example = "1")
         @QueryParam("clientId")
         Long clientId,
+        @Schema(description = "Filter by user identifier", example = "1")
+        @QueryParam("userId")
+        Long userId,
         @Schema(description = "Filter appointments from this date", example = "2026-04-20")
         @QueryParam("dateFrom")
         @DateFormat

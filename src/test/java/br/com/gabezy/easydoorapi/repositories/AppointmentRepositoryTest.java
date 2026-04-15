@@ -61,7 +61,7 @@ public class AppointmentRepositoryTest {
         var realestateAgent = createRealEstateAgent();
         var building = createBuilding();
 
-        var filter = new FilterAppointmentDTO(building.id, null, null, null, null, false);
+        var filter = new FilterAppointmentDTO(building.id, null, null, null, null, null, false);
 
         var appontiment = new Appontiment(
                 LocalDateTime.now(),
@@ -96,7 +96,7 @@ public class AppointmentRepositoryTest {
 
     @Test
     public void shouldNotFindByFilterBuldingId() {
-        var filter = new FilterAppointmentDTO(10L, 1L, null, null, null, false);
+        var filter = new FilterAppointmentDTO(10L, 1L, null, null, null, null, false);
         var client = createClient();
         var realestateAgent = createRealEstateAgent();
         var building = createBuilding();

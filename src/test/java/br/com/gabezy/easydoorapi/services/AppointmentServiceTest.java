@@ -2,6 +2,8 @@ package br.com.gabezy.easydoorapi.services;
 
 import br.com.gabezy.easydoorapi.domain.appointment.entities.Appontiment;
 import br.com.gabezy.easydoorapi.domain.appointment.repositories.AppointmentRepository;
+import br.com.gabezy.easydoorapi.domain.user.entities.Client;
+import br.com.gabezy.easydoorapi.domain.user.repositories.ClientRepository;
 import br.com.gabezy.easydoorapi.infra.exceptions.ResourceNotFoundException;
 import br.com.gabezy.easydoorapi.resources.dto.appointment.CreateAppointmentRequest;
 import br.com.gabezy.easydoorapi.resources.dto.appointment.FilterAppointmentDTO;
@@ -26,6 +28,9 @@ public class AppointmentServiceTest {
     @InjectMock
     AppointmentRepository appointmentRepository;
 
+    @InjectMock
+    ClientRepository clientRepository;
+
     @Test
     public void shouldCreateAppointment() {
         var request = new CreateAppointmentRequest(
@@ -34,6 +39,10 @@ public class AppointmentServiceTest {
                 1L,
                 1L
         );
+
+        Mockito.when(clientRepository.findByIdOptional(request.userId())).thenReturn(Optional.of(new Client(
+                "name", "321321321", 1L
+        )));
 
         Mockito.doAnswer(invocation -> {
             var appointmentToSave = invocation.getArgument(0, Appontiment.class);
@@ -44,7 +53,7 @@ public class AppointmentServiceTest {
         var appointment = appointmentService.createAppointment(request);
 
         assertEquals(request.time(), appointment.time);
-        assertEquals(request.clientId(), appointment.clientId);
+        assertEquals(1L, appointment.clientId);
         assertEquals(request.realEstateAgentId(), appointment.realEstateAgentId);
         assertNull(appointment.canceledAt);
         assertNull(appointment.approvedAt);
@@ -107,7 +116,7 @@ public class AppointmentServiceTest {
         );
 
         Mockito.when(appointmentRepository.findAllByFilter(Mockito.any(FilterAppointmentDTO.class))).thenReturn(appointments);
-        var foundAppointments = appointmentService.findByFilter(new FilterAppointmentDTO(1L, null, null, null, null, false));
+        var foundAppointments = appointmentService.findByFilter(new FilterAppointmentDTO(1L, null, null, null, null, null,  false));
 
         assertEquals(2, foundAppointments.size());
         assertEquals(appointments, foundAppointments);
