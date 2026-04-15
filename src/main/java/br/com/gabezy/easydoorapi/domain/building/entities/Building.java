@@ -4,9 +4,11 @@ import br.com.gabezy.easydoorapi.domain.shared.entities.Address;
 import br.com.gabezy.easydoorapi.domain.shared.entities.BaseUpdatableEntity;
 import br.com.gabezy.easydoorapi.domain.shared.entities.GeographicalCoordinates;
 import jakarta.persistence.*;
+import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
 @Entity
 @Table(name = "buildings")
+@Schema(name = "Building", description = "Building registered in the system")
 public class Building extends BaseUpdatableEntity {
 
     public Building() {}
@@ -21,9 +23,11 @@ public class Building extends BaseUpdatableEntity {
     }
 
     @Column(nullable = false)
+    @Schema(description = "Building name", example = "Edificio Central")
     public String name;
 
     @Column(name = "locker_id", nullable = false)
+    @Schema(description = "Locker identifier associated with the building", example = "1")
     public Long lockerId;
 
     @OneToOne
@@ -31,15 +35,19 @@ public class Building extends BaseUpdatableEntity {
     public Locker locker;
 
     @Embedded
+    @Schema(description = "Geographic coordinates")
     public GeographicalCoordinates coordinates;
 
     @Column(nullable = false)
+    @Schema(description = "Building area", example = "500.0")
     public Double area;
 
     @Column(nullable = false)
+    @Schema(description = "Building description", example = "Edificio residencial com portaria 24h")
     public String description;
 
     @Embedded
+    @Schema(description = "Address")
     public Address address;
 
 }

@@ -2,11 +2,22 @@ package br.com.gabezy.easydoorapi.resources;
 
 import br.com.gabezy.easydoorapi.resources.dto.PermissionDTO;
 import br.com.gabezy.easydoorapi.resources.dto.RoleDTO;
+import br.com.gabezy.easydoorapi.resources.dto.SimpleErrorResponseDTO;
+import br.com.gabezy.easydoorapi.resources.dto.SimpleMessageResponseDTO;
 import br.com.gabezy.easydoorapi.services.RoleService;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import org.eclipse.microprofile.openapi.annotations.Operation;
+import org.eclipse.microprofile.openapi.annotations.enums.SchemaType;
+import org.eclipse.microprofile.openapi.annotations.media.Content;
+import org.eclipse.microprofile.openapi.annotations.media.Schema;
+import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
+import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
+import org.eclipse.microprofile.openapi.annotations.responses.APIResponses;
+import org.eclipse.microprofile.openapi.annotations.security.SecurityRequirement;
+import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import java.util.List;
 
 /**
@@ -15,6 +26,7 @@ import java.util.List;
 @Path("/roles")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
+@Tag(name = "Roles", description = "Role and permission management endpoints")
 public class RoleResource {
 
     private final RoleService roleService;
@@ -26,6 +38,17 @@ public class RoleResource {
     @GET
     @Path("/permissions")
     @RolesAllowed("ADMIN")
+    @SecurityRequirement(name = "JWT")
+    @Operation(summary = "List permissions", description = "Returns all permissions. Access is restricted to ADMIN.")
+    @APIResponses({
+            @APIResponse(responseCode = "200", description = "Permissions returned successfully",
+                    content = @Content(mediaType = MediaType.APPLICATION_JSON,
+                            schema = @Schema(type = SchemaType.ARRAY, implementation = PermissionDTO.class))),
+            @APIResponse(responseCode = "401", description = "Authentication required"),
+            @APIResponse(responseCode = "403", description = "User does not have permission to view permissions"),
+            @APIResponse(responseCode = "500", description = "Unexpected error while fetching permissions",
+                    content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = SimpleErrorResponseDTO.class)))
+    })
     public Response getAllPermissions() {
         try {
             List<PermissionDTO> permissions = roleService.getAllPermissions();
@@ -40,6 +63,18 @@ public class RoleResource {
     @GET
     @Path("/permissions/{id}")
     @RolesAllowed("ADMIN")
+    @SecurityRequirement(name = "JWT")
+    @Operation(summary = "Get permission by id", description = "Returns a single permission by identifier. Access is restricted to ADMIN.")
+    @APIResponses({
+            @APIResponse(responseCode = "200", description = "Permission returned successfully",
+                    content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = PermissionDTO.class))),
+            @APIResponse(responseCode = "401", description = "Authentication required"),
+            @APIResponse(responseCode = "403", description = "User does not have permission to view permissions"),
+            @APIResponse(responseCode = "404", description = "Permission not found",
+                    content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = SimpleErrorResponseDTO.class))),
+            @APIResponse(responseCode = "500", description = "Unexpected error while fetching permission",
+                    content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = SimpleErrorResponseDTO.class)))
+    })
     public Response getPermissionById(@PathParam("id") Long permissionId) {
         try {
             PermissionDTO permission = roleService.getPermissionById(permissionId);
@@ -57,6 +92,14 @@ public class RoleResource {
     }
 
     @GET
+    @Operation(summary = "List roles", description = "Returns all roles. Public endpoint.")
+    @APIResponses({
+            @APIResponse(responseCode = "200", description = "Roles returned successfully",
+                    content = @Content(mediaType = MediaType.APPLICATION_JSON,
+                            schema = @Schema(type = SchemaType.ARRAY, implementation = RoleDTO.class))),
+            @APIResponse(responseCode = "500", description = "Unexpected error while fetching roles",
+                    content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = SimpleErrorResponseDTO.class)))
+    })
     public Response getAllRoles() {
         try {
             List<RoleDTO> roles = roleService.getAllRoles();
@@ -71,6 +114,18 @@ public class RoleResource {
     @GET
     @Path("/{id}")
     @RolesAllowed("ADMIN")
+    @SecurityRequirement(name = "JWT")
+    @Operation(summary = "Get role by id", description = "Returns a single role by identifier. Access is restricted to ADMIN.")
+    @APIResponses({
+            @APIResponse(responseCode = "200", description = "Role returned successfully",
+                    content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = RoleDTO.class))),
+            @APIResponse(responseCode = "401", description = "Authentication required"),
+            @APIResponse(responseCode = "403", description = "User does not have permission to view roles"),
+            @APIResponse(responseCode = "404", description = "Role not found",
+                    content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = SimpleErrorResponseDTO.class))),
+            @APIResponse(responseCode = "500", description = "Unexpected error while fetching role",
+                    content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = SimpleErrorResponseDTO.class)))
+    })
     public Response getRoleById(@PathParam("id") Long roleId) {
         try {
             RoleDTO role = roleService.getRoleById(roleId);
@@ -96,8 +151,22 @@ public class RoleResource {
      */
     @POST
     @RolesAllowed("ADMIN")
-    public Response createRole(@QueryParam("name") String name,
-                               @QueryParam("description") String description) {
+    @SecurityRequirement(name = "JWT")
+    @Operation(summary = "Create a role", description = "Creates a new role. Access is restricted to ADMIN.")
+    @APIResponses({
+            @APIResponse(responseCode = "201", description = "Role created successfully",
+                    content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = RoleDTO.class))),
+            @APIResponse(responseCode = "400", description = "Role name is required",
+                    content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = SimpleErrorResponseDTO.class))),
+            @APIResponse(responseCode = "401", description = "Authentication required"),
+            @APIResponse(responseCode = "403", description = "User does not have permission to create roles"),
+            @APIResponse(responseCode = "409", description = "Role already exists",
+                    content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = SimpleErrorResponseDTO.class))),
+            @APIResponse(responseCode = "500", description = "Unexpected error while creating role",
+                    content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = SimpleErrorResponseDTO.class)))
+    })
+    public Response createRole(@Parameter(description = "Role name", example = "SUPERVISOR") @QueryParam("name") String name,
+                               @Parameter(description = "Role description", example = "Supervisor role") @QueryParam("description") String description) {
         try {
             if (name == null || name.isEmpty()) {
                 return Response.status(Response.Status.BAD_REQUEST)
@@ -127,6 +196,18 @@ public class RoleResource {
     @POST
     @Path("/{id}/permissions/{permissionCode}")
     @RolesAllowed("ADMIN")
+    @SecurityRequirement(name = "JWT")
+    @Operation(summary = "Add permission to role", description = "Adds a permission to a role. Access is restricted to ADMIN.")
+    @APIResponses({
+            @APIResponse(responseCode = "200", description = "Permission added successfully",
+                    content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = SimpleMessageResponseDTO.class))),
+            @APIResponse(responseCode = "400", description = "Role or permission is invalid",
+                    content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = SimpleErrorResponseDTO.class))),
+            @APIResponse(responseCode = "401", description = "Authentication required"),
+            @APIResponse(responseCode = "403", description = "User does not have permission to update roles"),
+            @APIResponse(responseCode = "500", description = "Unexpected error while adding permission",
+                    content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = SimpleErrorResponseDTO.class)))
+    })
     public Response addPermissionToRole(@PathParam("id") Long roleId,
                                         @PathParam("permissionCode") String permissionCode) {
         try {
@@ -153,6 +234,18 @@ public class RoleResource {
     @DELETE
     @Path("/{id}/permissions/{permissionCode}")
     @RolesAllowed("ADMIN")
+    @SecurityRequirement(name = "JWT")
+    @Operation(summary = "Remove permission from role", description = "Removes a permission from a role. Access is restricted to ADMIN.")
+    @APIResponses({
+            @APIResponse(responseCode = "200", description = "Permission removed successfully",
+                    content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = SimpleMessageResponseDTO.class))),
+            @APIResponse(responseCode = "400", description = "Role or permission is invalid",
+                    content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = SimpleErrorResponseDTO.class))),
+            @APIResponse(responseCode = "401", description = "Authentication required"),
+            @APIResponse(responseCode = "403", description = "User does not have permission to update roles"),
+            @APIResponse(responseCode = "500", description = "Unexpected error while removing permission",
+                    content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = SimpleErrorResponseDTO.class)))
+    })
     public Response removePermissionFromRole(@PathParam("id") Long roleId,
                                              @PathParam("permissionCode") String permissionCode) {
         try {
@@ -169,4 +262,3 @@ public class RoleResource {
         }
     }
 }
-

@@ -6,9 +6,11 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
+import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
 @Entity
 @Table( name = "lockers")
+@Schema(name = "Locker", description = "Locker available to be associated with buildings")
 public class Locker extends BaseEntity {
 
     public Locker() {};
@@ -20,11 +22,14 @@ public class Locker extends BaseEntity {
     }
 
     @Column(unique = true, nullable = false)
+    @Schema(description = "Unique serial number", example = "LOCKER-001")
     public String serialNumber;
 
+    @Schema(description = "Locker display name", example = "Locker Paulista")
     public String name;
 
     @Embedded
+    @Schema(description = "Geographic coordinates")
     public GeographicalCoordinates coordinates;
 
 }

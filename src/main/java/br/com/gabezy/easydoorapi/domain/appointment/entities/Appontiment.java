@@ -5,6 +5,7 @@ import br.com.gabezy.easydoorapi.domain.shared.entities.BaseUpdatableEntity;
 import br.com.gabezy.easydoorapi.domain.user.entities.Client;
 import br.com.gabezy.easydoorapi.domain.user.entities.RealEstateAgent;
 import jakarta.persistence.*;
+import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
 
@@ -13,6 +14,7 @@ import java.time.LocalDateTime;
 @Entity
 @Audited
 @Table(name = "appointments")
+@Schema(name = "Appointment", description = "Appointment scheduled between a client, a real estate agent, and a building")
 public class Appontiment extends BaseUpdatableEntity {
 
     public Appontiment() {}
@@ -31,9 +33,11 @@ public class Appontiment extends BaseUpdatableEntity {
     }
 
     @Column(nullable = false)
+    @Schema(description = "Appointment date and time", example = "2026-04-20T14:30:00")
     public LocalDateTime time;
 
     @Column(name = "client_id", nullable = false)
+    @Schema(description = "Client identifier", example = "1")
     public Long clientId;
 
     @NotAudited
@@ -42,6 +46,7 @@ public class Appontiment extends BaseUpdatableEntity {
     public Client client;
 
     @Column(name = "real_estate_agent_id", nullable = false)
+    @Schema(description = "Real estate agent identifier", example = "1")
     public Long realEstateAgentId;
 
     @ManyToOne(fetch = FetchType.EAGER)
@@ -50,6 +55,7 @@ public class Appontiment extends BaseUpdatableEntity {
     public RealEstateAgent realEstateAgent;
 
     @Column(name = "building_id", nullable = false)
+    @Schema(description = "Building identifier", example = "1")
     public Long buildingId;
 
     @ManyToOne(fetch = FetchType.EAGER)
@@ -57,12 +63,16 @@ public class Appontiment extends BaseUpdatableEntity {
     @NotAudited
     public Building building;
 
+    @Schema(description = "Cancellation timestamp if the appointment was canceled", example = "2026-04-18T10:00:00")
     public LocalDateTime canceledAt;
 
+    @Schema(description = "Approval timestamp if the appointment was approved", example = "2026-04-18T11:00:00")
     public LocalDateTime approvedAt;
 
+    @Schema(description = "Completion timestamp if the appointment was completed", example = "2026-04-20T15:30:00")
     public LocalDateTime finishedAt;
 
+    @Schema(description = "Rating given to the appointment", example = "5")
     public Integer rating;
 
 }
