@@ -42,6 +42,7 @@ public class AppointmentRepositoryTest {
                 null,
                 null,
                 null,
+                null,
                 null
         );
 
@@ -71,6 +72,7 @@ public class AppointmentRepositoryTest {
                 null,
                 null,
                 null,
+                null,
                 null
         );
 
@@ -80,6 +82,7 @@ public class AppointmentRepositoryTest {
                 realestateAgent.id,
                 building.id,
                 LocalDateTime.now().plusDays(1),
+                null,
                 null,
                 null,
                 null
@@ -109,6 +112,7 @@ public class AppointmentRepositoryTest {
                 null,
                 null,
                 null,
+                null,
                 null
         );
 
@@ -118,6 +122,7 @@ public class AppointmentRepositoryTest {
                 realestateAgent.id,
                 building.id,
                 LocalDateTime.now().plusDays(1),
+                null,
                 null,
                 null,
                 null

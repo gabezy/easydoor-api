@@ -2,9 +2,13 @@ package br.com.gabezy.easydoorapi.services;
 
 import br.com.gabezy.easydoorapi.domain.appointment.entities.Appontiment;
 import br.com.gabezy.easydoorapi.domain.appointment.repositories.AppointmentRepository;
+import br.com.gabezy.easydoorapi.domain.user.entities.User;
 import br.com.gabezy.easydoorapi.domain.user.repositories.ClientRepository;
+import br.com.gabezy.easydoorapi.infra.exceptions.ForbiddenException;
 import br.com.gabezy.easydoorapi.infra.exceptions.ResourceNotFoundException;
 import br.com.gabezy.easydoorapi.infra.mappers.AppointmentMapper;
+import br.com.gabezy.easydoorapi.infra.repositories.UserRepositoryImpl;
+import br.com.gabezy.easydoorapi.resources.dto.appointment.AppointmentApprovalRequest;
 import br.com.gabezy.easydoorapi.resources.dto.appointment.CreateAppointmentRequest;
 import br.com.gabezy.easydoorapi.resources.dto.appointment.FilterAppointmentDTO;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -20,10 +24,16 @@ public class AppointmentService {
     private final AppointmentMapper mapper = Mappers.getMapper(AppointmentMapper.class);
     private final AppointmentRepository appointmentRepository;
     private final ClientRepository clientRepository;
+    private final UserRepositoryImpl userRepository;
 
-    public AppointmentService(AppointmentRepository appointmentRepository, ClientRepository clientRepository) {
+    public AppointmentService(
+            AppointmentRepository appointmentRepository,
+            ClientRepository clientRepository,
+            UserRepositoryImpl userRepository
+    ) {
         this.appointmentRepository = appointmentRepository;
         this.clientRepository = clientRepository;
+        this.userRepository = userRepository;
     }
 
     @Transactional
@@ -43,6 +53,43 @@ public class AppointmentService {
 
     public Appontiment findById(Long id) {
         return appointmentRepository.findByIdOptional(id).orElseThrow(() -> new ResourceNotFoundException("Appointment not found"));
+    }
+
+    @Transactional
+    public Appontiment reviewAppointment(Long appointmentId, @Valid AppointmentApprovalRequest request) {
+        var appointment = appointmentRepository.findByIdOptional(appointmentId)
+                .orElseThrow(() -> new ResourceNotFoundException("Appointment not found"));
+
+        var decisionUser = userRepository.findByIdWithRoles(request.approvedUserId())
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        validateDecisionUser(decisionUser, appointment);
+
+        appointment.approvedUserId = decisionUser.id;
+
+        if (Boolean.TRUE.equals(request.approved())) {
+            appointment.approvedAt = java.time.LocalDateTime.now();
+            appointment.rejectedAt = null;
+        } else {
+            appointment.rejectedAt = java.time.LocalDateTime.now();
+            appointment.approvedAt = null;
+        }
+
+        appointmentRepository.persist(appointment);
+        return appointment;
+    }
+
+    private void validateDecisionUser(User decisionUser, Appontiment appointment) {
+        boolean isAdmin = decisionUser.getRoles().stream()
+                .anyMatch(role -> "ADMIN".equalsIgnoreCase(role.getName()));
+
+        if (isAdmin) {
+            return;
+        }
+
+        if (appointment.realEstateAgent == null || !decisionUser.id.equals(appointment.realEstateAgent.userId)) {
+            throw new ForbiddenException("User is not allowed to review this appointment");
+        }
     }
 
 }

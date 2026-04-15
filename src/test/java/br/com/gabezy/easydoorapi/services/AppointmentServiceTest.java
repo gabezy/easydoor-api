@@ -2,9 +2,15 @@ package br.com.gabezy.easydoorapi.services;
 
 import br.com.gabezy.easydoorapi.domain.appointment.entities.Appontiment;
 import br.com.gabezy.easydoorapi.domain.appointment.repositories.AppointmentRepository;
+import br.com.gabezy.easydoorapi.domain.role.entities.Role;
 import br.com.gabezy.easydoorapi.domain.user.entities.Client;
+import br.com.gabezy.easydoorapi.domain.user.entities.RealEstateAgent;
+import br.com.gabezy.easydoorapi.domain.user.entities.User;
 import br.com.gabezy.easydoorapi.domain.user.repositories.ClientRepository;
+import br.com.gabezy.easydoorapi.infra.exceptions.ForbiddenException;
 import br.com.gabezy.easydoorapi.infra.exceptions.ResourceNotFoundException;
+import br.com.gabezy.easydoorapi.infra.repositories.UserRepositoryImpl;
+import br.com.gabezy.easydoorapi.resources.dto.appointment.AppointmentApprovalRequest;
 import br.com.gabezy.easydoorapi.resources.dto.appointment.CreateAppointmentRequest;
 import br.com.gabezy.easydoorapi.resources.dto.appointment.FilterAppointmentDTO;
 import io.quarkus.test.InjectMock;
@@ -31,6 +37,9 @@ public class AppointmentServiceTest {
     @InjectMock
     ClientRepository clientRepository;
 
+    @InjectMock
+    UserRepositoryImpl userRepository;
+
     @Test
     public void shouldCreateAppointment() {
         var request = new CreateAppointmentRequest(
@@ -40,7 +49,7 @@ public class AppointmentServiceTest {
                 1L
         );
 
-        Mockito.when(clientRepository.findByIdOptional(request.userId())).thenReturn(Optional.of(new Client(
+        Mockito.when(clientRepository.findByUserId(request.userId())).thenReturn(Optional.of(new Client(
                 "name", "321321321", 1L
         )));
 
@@ -57,6 +66,7 @@ public class AppointmentServiceTest {
         assertEquals(request.realEstateAgentId(), appointment.realEstateAgentId);
         assertNull(appointment.canceledAt);
         assertNull(appointment.approvedAt);
+        assertNull(appointment.rejectedAt);
         assertNull(appointment.finishedAt);
 
         Mockito.verify(appointmentRepository, Mockito.times(1)).persist(Mockito.any(Appontiment.class));
@@ -69,6 +79,7 @@ public class AppointmentServiceTest {
                 1L,
                 1L,
                 1L,
+                null,
                 null,
                 null,
                 null,
@@ -101,6 +112,7 @@ public class AppointmentServiceTest {
                         null,
                         null,
                         null,
+                        null,
                         null
                 ),
                 new Appontiment(
@@ -108,6 +120,7 @@ public class AppointmentServiceTest {
                         1L,
                         1L,
                         1L,
+                        null,
                         null,
                         null,
                         null,
@@ -121,6 +134,72 @@ public class AppointmentServiceTest {
         assertEquals(2, foundAppointments.size());
         assertEquals(appointments, foundAppointments);
         Mockito.verify(appointmentRepository, Mockito.times(1)).findAllByFilter(Mockito.any(FilterAppointmentDTO.class));
+    }
+
+    @Test
+    public void shouldApproveAppointmentWithAdminUser() {
+        var appointment = new Appontiment(LocalDateTime.now(), 1L, 2L, 3L, null, null, null, null, null);
+        appointment.id = 10L;
+        appointment.realEstateAgent = new RealEstateAgent();
+        appointment.realEstateAgent.userId = 99L;
+
+        var adminRole = new Role("ADMIN", "Administrator");
+        var adminUser = new User("admin", "admin@test.com", "hash");
+        adminUser.id = 1L;
+        adminUser.addRole(adminRole);
+
+        Mockito.when(appointmentRepository.findByIdOptional(10L)).thenReturn(Optional.of(appointment));
+        Mockito.when(userRepository.findByIdWithRoles(1L)).thenReturn(Optional.of(adminUser));
+
+        var result = appointmentService.reviewAppointment(10L, new AppointmentApprovalRequest(1L, true));
+
+        assertEquals(1L, result.approvedUserId);
+        assertNotNull(result.approvedAt);
+        assertNull(result.rejectedAt);
+        Mockito.verify(appointmentRepository).persist(appointment);
+    }
+
+    @Test
+    public void shouldRejectAppointmentWithAssociatedRealEstateAgentUser() {
+        var appointment = new Appontiment(LocalDateTime.now(), 1L, 2L, 3L, null, null, null, null, null);
+        appointment.id = 10L;
+        appointment.realEstateAgent = new RealEstateAgent();
+        appointment.realEstateAgent.userId = 5L;
+
+        var agentRole = new Role("AGENT", "Agent");
+        var agentUser = new User("agent", "agent@test.com", "hash");
+        agentUser.id = 5L;
+        agentUser.addRole(agentRole);
+
+        Mockito.when(appointmentRepository.findByIdOptional(10L)).thenReturn(Optional.of(appointment));
+        Mockito.when(userRepository.findByIdWithRoles(5L)).thenReturn(Optional.of(agentUser));
+
+        var result = appointmentService.reviewAppointment(10L, new AppointmentApprovalRequest(5L, false));
+
+        assertEquals(5L, result.approvedUserId);
+        assertNull(result.approvedAt);
+        assertNotNull(result.rejectedAt);
+        Mockito.verify(appointmentRepository).persist(appointment);
+    }
+
+    @Test
+    public void shouldNotReviewAppointmentWithUnrelatedNonAdminUser() {
+        var appointment = new Appontiment(LocalDateTime.now(), 1L, 2L, 3L, null, null, null, null, null);
+        appointment.id = 10L;
+        appointment.realEstateAgent = new RealEstateAgent();
+        appointment.realEstateAgent.userId = 5L;
+
+        var user = new User("other", "other@test.com", "hash");
+        user.id = 7L;
+
+        Mockito.when(appointmentRepository.findByIdOptional(10L)).thenReturn(Optional.of(appointment));
+        Mockito.when(userRepository.findByIdWithRoles(7L)).thenReturn(Optional.of(user));
+
+        assertThrowsExactly(
+                ForbiddenException.class,
+                () -> appointmentService.reviewAppointment(10L, new AppointmentApprovalRequest(7L, true))
+        );
+        Mockito.verify(appointmentRepository, Mockito.never()).persist(Mockito.any(Appontiment.class));
     }
 
 }

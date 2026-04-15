@@ -3,6 +3,7 @@ package br.com.gabezy.easydoorapi.resources;
 import br.com.gabezy.easydoorapi.domain.appointment.entities.Appontiment;
 import br.com.gabezy.easydoorapi.infra.exceptions.ErroResponse;
 import br.com.gabezy.easydoorapi.resources.dto.SimpleErrorResponseDTO;
+import br.com.gabezy.easydoorapi.resources.dto.appointment.AppointmentApprovalRequest;
 import br.com.gabezy.easydoorapi.resources.dto.appointment.CreateAppointmentRequest;
 import br.com.gabezy.easydoorapi.resources.dto.appointment.FilterAppointmentDTO;
 import br.com.gabezy.easydoorapi.services.AppointmentService;
@@ -81,6 +82,28 @@ public class AppointmentResource {
     })
     public Response getAppointmentById(@PathParam("id") Long id) {
         return Response.ok(service.findById(id)).build();
+    }
+
+    @PATCH
+    @Path("/{id}/approval")
+    @RolesAllowed({"ADMIN", "APPROVE_APPOINTMENTS"})
+    @Operation(
+            summary = "Approve or reject an appointment",
+            description = "Approves or rejects an appointment. Access is restricted to ADMIN or APPROVE_APPOINTMENTS. The informed approvedUserId must belong to an ADMIN user or to the real estate agent associated with the appointment."
+    )
+    @APIResponses({
+            @APIResponse(responseCode = "200", description = "Appointment decision registered successfully",
+                    content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = Appontiment.class))),
+            @APIResponse(responseCode = "400", description = "Invalid request payload",
+                    content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = SimpleErrorResponseDTO.class))),
+            @APIResponse(responseCode = "401", description = "Authentication required"),
+            @APIResponse(responseCode = "403", description = "User does not have permission to approve this appointment",
+                    content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = ErroResponse.class))),
+            @APIResponse(responseCode = "404", description = "Appointment or decision user not found",
+                    content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = ErroResponse.class)))
+    })
+    public Response reviewAppointment(@PathParam("id") Long id, @Valid AppointmentApprovalRequest request) {
+        return Response.ok(service.reviewAppointment(id, request)).build();
     }
 
 }

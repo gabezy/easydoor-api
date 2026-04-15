@@ -2,6 +2,7 @@ package br.com.gabezy.easydoorapi.resources;
 
 import br.com.gabezy.easydoorapi.domain.appointment.entities.Appontiment;
 import br.com.gabezy.easydoorapi.infra.exceptions.ResourceNotFoundException;
+import br.com.gabezy.easydoorapi.resources.dto.appointment.AppointmentApprovalRequest;
 import br.com.gabezy.easydoorapi.resources.dto.appointment.CreateAppointmentRequest;
 import br.com.gabezy.easydoorapi.resources.dto.appointment.FilterAppointmentDTO;
 import br.com.gabezy.easydoorapi.services.AppointmentService;
@@ -40,7 +41,7 @@ public class AppointmentResourceTest {
     @TestSecurity(user = "AGENT", roles = {"CREATE_APPOINTMENT"})
     public void shouldCreateAppointment() {
         var request = new CreateAppointmentRequest(LocalDateTime.now(), 1L, 1L, 1L);
-        var newAppointment = new Appontiment(LocalDateTime.now(), 1L, 1L, 1L, null, null, null, null);
+        var newAppointment = new Appontiment(LocalDateTime.now(), 1L, 1L, 1L, null, null, null, null, null);
         newAppointment.id = 1L;
         Mockito.when(appointmentService.createAppointment(Mockito.any())).thenReturn(newAppointment);
 
@@ -59,7 +60,7 @@ public class AppointmentResourceTest {
     @Test
     @TestSecurity(user = "AGENT", roles = {"VIEW_APPOINTMENT"})
     public void shouldFindAppointmentById() {
-        var newAppointment = new Appontiment(LocalDateTime.now(), 1L, 1L, 1L, null, null, null, null);
+        var newAppointment = new Appontiment(LocalDateTime.now(), 1L, 1L, 1L, null, null, null, null, null);
         newAppointment.id = 1L;
         Mockito.when(appointmentService.findById(Mockito.any())).thenReturn(newAppointment);
 
@@ -144,6 +145,25 @@ public class AppointmentResourceTest {
         assertNull(capturedFilter.buildingId());
         assertNull(capturedFilter.dateTo());
         assertFalse(capturedFilter.canceled());
+    }
+
+    @Test
+    @TestSecurity(user = "ADMIN", roles = {"ADMIN"})
+    public void shouldReviewAppointment() {
+        var request = new AppointmentApprovalRequest(1L, true);
+        var appointment = new Appontiment(LocalDateTime.now(), 1L, 1L, 1L, null, LocalDateTime.now(), null, null, null);
+        appointment.id = 1L;
+
+        Mockito.when(appointmentService.reviewAppointment(Mockito.eq(1L), Mockito.any())).thenReturn(appointment);
+
+        given()
+                .contentType(ContentType.JSON)
+                .body(request)
+        .when()
+                .patch("/1/approval")
+        .then()
+                .statusCode(200)
+                .body("id", Matchers.equalTo(1));
     }
 
 }
