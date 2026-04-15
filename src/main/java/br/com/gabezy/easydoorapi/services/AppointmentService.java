@@ -4,6 +4,7 @@ import br.com.gabezy.easydoorapi.domain.appointment.entities.Appontiment;
 import br.com.gabezy.easydoorapi.domain.appointment.repositories.AppointmentRepository;
 import br.com.gabezy.easydoorapi.domain.user.entities.User;
 import br.com.gabezy.easydoorapi.domain.user.repositories.ClientRepository;
+import br.com.gabezy.easydoorapi.domain.user.repositories.RealEstateAgentRepository;
 import br.com.gabezy.easydoorapi.infra.exceptions.ForbiddenException;
 import br.com.gabezy.easydoorapi.infra.exceptions.ResourceNotFoundException;
 import br.com.gabezy.easydoorapi.infra.mappers.AppointmentMapper;
@@ -25,15 +26,13 @@ public class AppointmentService {
     private final AppointmentRepository appointmentRepository;
     private final ClientRepository clientRepository;
     private final UserRepositoryImpl userRepository;
+    private final RealEstateAgentRepository realEstateAgentRepository;
 
-    public AppointmentService(
-            AppointmentRepository appointmentRepository,
-            ClientRepository clientRepository,
-            UserRepositoryImpl userRepository
-    ) {
+    public AppointmentService(AppointmentRepository appointmentRepository, ClientRepository clientRepository, UserRepositoryImpl userRepository, RealEstateAgentRepository realEstateAgentRepository) {
         this.appointmentRepository = appointmentRepository;
         this.clientRepository = clientRepository;
         this.userRepository = userRepository;
+        this.realEstateAgentRepository = realEstateAgentRepository;
     }
 
     @Transactional
@@ -47,8 +46,20 @@ public class AppointmentService {
         return appointment;
     }
 
-    public List<Appontiment> findByFilter(@Valid FilterAppointmentDTO filter) {
-        return appointmentRepository.findAllByFilter(filter);
+    public List<Appontiment> findByFilter(@Valid FilterAppointmentDTO filter, Long userId) {
+        var isAdmin = userRepository.findByIdWithRoles(userId).stream()
+                .flatMap(user -> user.getRoles().stream())
+                .anyMatch(role -> "ADMIN".equalsIgnoreCase(role.getName()));
+
+        if (isAdmin) {
+            return appointmentRepository.findAllByFilter(filter);
+        }
+
+        var agentId = realEstateAgentRepository.findByUserId(userId)
+                .map(realEstateAgent -> realEstateAgent.id)
+                .orElseThrow(() -> new ResourceNotFoundException("Real estate agent not found for user id: " + userId));
+
+        return appointmentRepository.findAllByFilter(filter.WithAgentId(agentId));
     }
 
     public Appontiment findById(Long id) {

@@ -31,4 +31,16 @@ public record FilterAppointmentDTO(
         @Schema(description = "Whether to return canceled appointments", example = "false")
         @QueryParam("canceled")
         boolean canceled
-) {}
+) {
+        public FilterAppointmentDTO WithAgentId(Long agentId) {
+                return new FilterAppointmentDTO(
+                        this.buildingId,
+                        agentId,
+                        this.clientId,
+                        this.userId,
+                        this.dateFrom,
+                        this.dateTo,
+                        this.canceled
+                );
+        }
+}

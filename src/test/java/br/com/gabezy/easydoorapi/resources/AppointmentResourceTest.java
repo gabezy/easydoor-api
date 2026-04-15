@@ -122,7 +122,7 @@ public class AppointmentResourceTest {
                 "dateFrom", "2026-01-20"
         );
 
-        Mockito.when(appointmentService.findByFilter(Mockito.any(FilterAppointmentDTO.class)))
+        Mockito.when(appointmentService.findByFilter(Mockito.any(FilterAppointmentDTO.class), Mockito.any()))
                 .thenReturn(Collections.emptyList());
 
         given()
@@ -135,7 +135,7 @@ public class AppointmentResourceTest {
             .body("size()", Matchers.equalTo(0));
 
         ArgumentCaptor<FilterAppointmentDTO> filterCaptor = ArgumentCaptor.forClass(FilterAppointmentDTO.class);
-        Mockito.verify(appointmentService).findByFilter(filterCaptor.capture());
+        Mockito.verify(appointmentService).findByFilter(filterCaptor.capture(), Mockito.any());
 
         // Fazer asserções sobre o objeto capturado
         FilterAppointmentDTO capturedFilter = filterCaptor.getValue();

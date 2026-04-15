@@ -7,6 +7,7 @@ import br.com.gabezy.easydoorapi.resources.dto.SimpleErrorResponseDTO;
 import br.com.gabezy.easydoorapi.resources.dto.SimpleMessageResponseDTO;
 import br.com.gabezy.easydoorapi.resources.dto.TokenResponseDTO;
 import br.com.gabezy.easydoorapi.services.AuthService;
+import io.quarkus.security.Authenticated;
 import jakarta.annotation.security.PermitAll;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
@@ -93,6 +94,7 @@ public class AuthResource {
     @POST
     @Path("/logout")
     @SecurityRequirement(name = "JWT")
+    @Authenticated
     @Operation(summary = "Logout", description = "Revokes the provided refresh token.")
     @APIResponses({
             @APIResponse(responseCode = "200", description = "Logout completed successfully",

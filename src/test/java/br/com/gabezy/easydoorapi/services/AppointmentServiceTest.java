@@ -129,7 +129,7 @@ public class AppointmentServiceTest {
         );
 
         Mockito.when(appointmentRepository.findAllByFilter(Mockito.any(FilterAppointmentDTO.class))).thenReturn(appointments);
-        var foundAppointments = appointmentService.findByFilter(new FilterAppointmentDTO(1L, null, null, null, null, null,  false));
+        var foundAppointments = appointmentService.findByFilter(new FilterAppointmentDTO(1L, null, null, null, null, null,  false), 1L);
 
         assertEquals(2, foundAppointments.size());
         assertEquals(appointments, foundAppointments);

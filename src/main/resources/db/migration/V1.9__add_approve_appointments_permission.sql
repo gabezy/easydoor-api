@@ -3,3 +3,6 @@ INSERT INTO permissions (id, code, description, created_at) VALUES
 
 INSERT INTO role_permissions (role_id, permission_id) VALUES
 (1, 8);
+
+INSERT INTO role_permissions (role_id, permission_id) VALUES
+(2, 8);
