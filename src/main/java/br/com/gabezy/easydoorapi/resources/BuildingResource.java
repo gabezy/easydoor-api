@@ -20,6 +20,8 @@ import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponses;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Path("/buildings")
 @Produces(MediaType.APPLICATION_JSON)
@@ -56,6 +58,7 @@ public class BuildingResource {
             content = @Content(mediaType = MediaType.APPLICATION_JSON,
                     schema = @Schema(type = SchemaType.ARRAY, implementation = Building.class)))
     public Response getAllBuildings(@Valid FilterBuildingDTO filter) {
+        System.out.println("Received filter: " + filter);
         return Response.ok(buildingService.findByFilter(filter)).build();
     }
 
