@@ -6,6 +6,7 @@ import br.com.gabezy.easydoorapi.domain.shared.vo.Cpf;
 import br.com.gabezy.easydoorapi.domain.shared.vo.Email;
 import br.com.gabezy.easydoorapi.domain.user.entities.Client;
 import br.com.gabezy.easydoorapi.domain.user.entities.User;
+import br.com.gabezy.easydoorapi.domain.user.repositories.ClientRepository;
 import br.com.gabezy.easydoorapi.infra.config.JwtProperties;
 import br.com.gabezy.easydoorapi.infra.exceptions.NegocioException;
 import br.com.gabezy.easydoorapi.infra.repositories.RoleRepositoryImpl;
@@ -28,15 +29,15 @@ public class AuthService {
     private final TokenGenerationService tokenGenerationService;
     private final RefreshTokenService refreshTokenService;
     private final JwtProperties jwtProperties;
+    private final ClientRepository clientRepository;
 
-    public AuthService(UserService userService, RoleRepositoryImpl roleRepositoryImpl,
-                       TokenGenerationService tokenGenerationService, RefreshTokenService refreshTokenService,
-                       JwtProperties jwtProperties) {
+    public AuthService(UserService userService, RoleRepositoryImpl roleRepositoryImpl, TokenGenerationService tokenGenerationService, RefreshTokenService refreshTokenService, JwtProperties jwtProperties, ClientRepository clientRepository) {
         this.userService = userService;
         this.roleRepositoryImpl = roleRepositoryImpl;
         this.tokenGenerationService = tokenGenerationService;
         this.refreshTokenService = refreshTokenService;
         this.jwtProperties = jwtProperties;
+        this.clientRepository = clientRepository;
     }
 
     @Transactional
@@ -64,7 +65,8 @@ public class AuthService {
         return new TokenResponseDTO(
                 tokenGenerationService.generateAccessToken(user).value(),
                 tokenGenerationService.generateRefreshToken(user).value(),
-                jwtProperties.accessToken().ttlSeconds()
+                jwtProperties.accessToken().ttlSeconds(),
+                TokenResponseDTO.Type.CLIENT
         );
     }
 
@@ -90,7 +92,9 @@ public class AuthService {
                 .plusSeconds(jwtProperties.refreshToken().ttlSeconds());
         refreshTokenService.createToken(refreshToken, user.id, expiresAt);
 
-        return new TokenResponseDTO(accessToken, refreshToken, jwtProperties.accessToken().ttlSeconds());
+        var type = getType(user);
+
+        return new TokenResponseDTO(accessToken, refreshToken, jwtProperties.accessToken().ttlSeconds(), type);
     }
 
     @Transactional
@@ -110,11 +114,20 @@ public class AuthService {
 
         String newAccessToken = tokenGenerationService.generateAccessToken(user).value();
 
+        var type = getType(user);
+
         return new TokenResponseDTO(
                 newAccessToken,
                 refreshTokenValue,
-                jwtProperties.accessToken().ttlSeconds()
+                jwtProperties.accessToken().ttlSeconds(),
+                type
         );
+    }
+
+    private TokenResponseDTO.Type getType(User user) {
+        return clientRepository.findByUserId(user.id)
+                .map(_ -> TokenResponseDTO.Type.CLIENT)
+                .orElse(TokenResponseDTO.Type.STAFF);
     }
 
     @Transactional

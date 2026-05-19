@@ -11,9 +11,15 @@ public record TokenResponseDTO (
         @Schema(description = "Access token expiration time in seconds", example = "3600")
         int expiresIn,
         @Schema(description = "Token type", example = "Bearer")
-        String tokenType
+        String tokenType,
+        Type type
 ) {
-    public TokenResponseDTO(String accessToken, String refreshToken, int expiresIn) {
-        this(accessToken, refreshToken, expiresIn, "Bearer");
+    public TokenResponseDTO(String accessToken, String refreshToken, int expiresIn, Type type) {
+        this(accessToken, refreshToken, expiresIn, "Bearer", type);
     }
+
+    public enum Type {
+        CLIENT, STAFF
+    }
+
 }

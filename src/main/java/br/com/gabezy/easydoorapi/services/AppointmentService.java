@@ -55,11 +55,9 @@ public class AppointmentService {
             return appointmentRepository.findAllByFilter(filter);
         }
 
-        var agentId = realEstateAgentRepository.findByUserId(userId)
-                .map(realEstateAgent -> realEstateAgent.id)
-                .orElseThrow(() -> new ResourceNotFoundException("Real estate agent not found for user id: " + userId));
-
-        return appointmentRepository.findAllByFilter(filter.WithAgentId(agentId));
+        return realEstateAgentRepository.findByUserId(userId)
+                .map(agent -> appointmentRepository.findAllByFilter(filter.WithAgentId(agent.id)))
+                .orElseGet(() -> appointmentRepository.findAllByFilter(filter));
     }
 
     public Appontiment findById(Long id) {
