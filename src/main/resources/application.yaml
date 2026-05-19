@@ -16,7 +16,7 @@ quarkus:
     database:
       generation: validate
     log:
-      sql: false
+      sql: true
 
   flyway:
     username: ${POSTGRES_USER:postgres}
