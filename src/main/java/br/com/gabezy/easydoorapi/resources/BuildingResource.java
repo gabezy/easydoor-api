@@ -20,14 +20,15 @@ import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponses;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.jboss.logging.Logger;
 
 @Path("/buildings")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 @Tag(name = "Buildings", description = "Building management endpoints")
 public class BuildingResource {
+
+    private static final Logger log = Logger.getLogger(BuildingResource.class);
 
     private final BuildingService buildingService;
 
@@ -58,7 +59,7 @@ public class BuildingResource {
             content = @Content(mediaType = MediaType.APPLICATION_JSON,
                     schema = @Schema(type = SchemaType.ARRAY, implementation = Building.class)))
     public Response getAllBuildings(@Valid FilterBuildingDTO filter) {
-        System.out.println("Received filter: " + filter);
+        log.info("Received request to list buildings with filter: " + filter);
         return Response.ok(buildingService.findByFilter(filter)).build();
     }
 
