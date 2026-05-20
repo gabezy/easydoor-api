@@ -18,6 +18,7 @@ spec:
           commonUpdateSettings:
             updateStrategy: newest-build
             allowTags: "regexp:^sha-[a-f0-9]{7}$"
+            pullSecret: pullsecret:argocd/ghcr-secret
           manifestTargets:
             kustomize:
               name: ghcr.io/gabezy/easydoor-api
