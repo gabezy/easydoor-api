@@ -1,0 +1,23 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: easydoor-api
+  namespace: argocd
+spec:
+  project: easydoor-api
+
+  source:
+    repoURL: https://github.com/gabezy/easydoor-api.git
+    targetRevision: main
+    path: .kube
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: easydoor-api
+
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

@@ -1,0 +1,22 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: easydoor-api
+  namespace: argocd
+spec:
+  description: Projeto ArgoCD da aplicação Easydoor API
+
+  sourceRepos:
+    - https://github.com/gabezy/easydoor-api.git
+
+  destinations:
+    - namespace: easydoor-api
+      server: https://kubernetes.default.svc
+
+  clusterResourceWhitelist:
+    - group: ""
+      kind: Namespace
+
+  namespaceResourceWhitelist:
+    - group: "*"
+      kind: "*"

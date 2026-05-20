@@ -1,0 +1,23 @@
+apiVersion: argocd-image-updater.argoproj.io/v1alpha1
+kind: ImageUpdater
+metadata:
+  name: easydoor-api-image-updater
+  namespace: argocd
+spec:
+  writeBackConfig:
+    method: git
+    gitConfig:
+      repository: https://github.com/gabezy/easydoor-api.git
+      branch: main
+
+  applicationRefs:
+    - namePattern: easydoor-api
+      images:
+        - alias: easydoorapi
+          imageName: ghcr.io/gabezy/easydoor-api
+          commonUpdateSettings:
+            updateStrategy: newest-build
+            allowTags: "regexp:^sha-[a-f0-9]{7}$"
+          manifestTargets:
+            kustomize:
+              name: ghcr.io/gabezy/easydoor-api
