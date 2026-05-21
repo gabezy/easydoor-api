@@ -30,7 +30,7 @@ import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 @Path("/appointments")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
-@Tag(name = "Appointments", description = "Appointment management endpoints")
+@Tag(name = "Appointments", description = "Appointment management endpoints K3S")
 @SecurityRequirement(name = "JWT")
 public class AppointmentResource {
 
