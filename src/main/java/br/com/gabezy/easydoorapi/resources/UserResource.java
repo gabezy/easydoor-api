@@ -18,6 +18,7 @@ import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponses;
 import org.eclipse.microprofile.openapi.annotations.security.SecurityRequirement;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
+import org.jboss.logging.Logger;
 
 import java.util.List;
 
@@ -27,6 +28,8 @@ import java.util.List;
 @Tag(name = "Users", description = "User management endpoints")
 @SecurityRequirement(name = "JWT")
 public class UserResource {
+
+    private static final Logger log = Logger.getLogger(BuildingResource.class);
 
     private final UserService userService;
 
