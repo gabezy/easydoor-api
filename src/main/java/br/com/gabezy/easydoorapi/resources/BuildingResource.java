@@ -28,8 +28,6 @@ import org.jboss.logging.Logger;
 @Tag(name = "Buildings", description = "Building management endpoints")
 public class BuildingResource {
 
-    private static final Logger log = Logger.getLogger(BuildingResource.class);
-
     private final BuildingService buildingService;
 
     public BuildingResource(BuildingService buildingService) {
@@ -59,7 +57,6 @@ public class BuildingResource {
             content = @Content(mediaType = MediaType.APPLICATION_JSON,
                     schema = @Schema(type = SchemaType.ARRAY, implementation = Building.class)))
     public Response getAllBuildings(@Valid FilterBuildingDTO filter) {
-        log.info("Received request to list buildings with filter: " + filter);
         return Response.ok(buildingService.findByFilter(filter)).build();
     }
 
