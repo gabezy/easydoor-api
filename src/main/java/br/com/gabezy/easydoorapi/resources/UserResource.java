@@ -29,7 +29,6 @@ import java.util.List;
 @SecurityRequirement(name = "JWT")
 public class UserResource {
 
-    private static final Logger log = Logger.getLogger(BuildingResource.class);
 
     private final UserService userService;
 
