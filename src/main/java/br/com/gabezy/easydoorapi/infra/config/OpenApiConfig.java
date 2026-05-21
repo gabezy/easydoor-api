@@ -9,7 +9,7 @@ import org.eclipse.microprofile.openapi.annotations.security.SecurityScheme;
 
 @OpenAPIDefinition(
         info = @Info(
-                title = "EasyDoor API",
+                title = "EasyDoor API TESTE",
                 version = "1.0.0",
                 contact = @Contact(
                         name = "EasyDoor Team",
